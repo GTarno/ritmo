@@ -1,0 +1,5 @@
+node_modules/
+test-results/
+playwright-report/
+# Nunca versionar dados reais
+ritmo-backup-*.json
