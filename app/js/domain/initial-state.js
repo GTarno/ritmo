@@ -20,10 +20,14 @@ const PLAN_EXERCISES = {
   ],
 };
 
+/** Nome do grupo de cada modelo. Campo opcional: dados antigos sem ele usam este padrão. */
+export const DEFAULT_PLAN_NAMES = { A: 'Superiores e core', B: 'Inferiores' };
+
 export const DEFAULT_WEEK_TEMPLATE = ['A', 'B', null, 'A', 'B', null, null];
 
 function buildPlan(type) {
   return {
+    name: DEFAULT_PLAN_NAMES[type],
     cardio: DEFAULT_CARDIO,
     exercises: PLAN_EXERCISES[type].map(([id, name, overrides]) => ({
       id,
