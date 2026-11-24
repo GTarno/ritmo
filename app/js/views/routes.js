@@ -1,12 +1,74 @@
 // Mapa de rotas. Cada tela ganha seu próprio arquivo em views/ nas issues do M1.
-import { placeholder } from '../ui/placeholder.js';
+// A ordem aqui é a ordem do menu.
+import { h } from '../ui/dom.js';
+import { emptyState } from '../ui/empty-state.js';
 
 export const DEFAULT_ROUTE = 'painel';
 
+function screen(title, ...content) {
+  return h('section', { class: 'screen' }, h('h2', { class: 'screen-title' }, title), content);
+}
+
 export const routes = {
-  painel: { title: 'Visão geral', render: () => placeholder('Visão geral', '#10') },
-  treino: { title: 'Treino AB', render: () => placeholder('Treino AB', '#7') },
-  calendario: { title: 'Calendário', render: () => placeholder('Calendário', '#9') },
-  evolucao: { title: 'Evolução', render: () => placeholder('Evolução', '#11') },
-  diario: { title: 'Diário', render: () => placeholder('Diário', '#12') },
+  painel: {
+    title: 'Visão geral',
+    label: 'Início',
+    render: () =>
+      screen(
+        'Visão geral',
+        emptyState({
+          title: 'Nenhum treino registrado ainda',
+          text: 'Planeje sua semana no calendário e registre o primeiro treino para acompanhar sua constância aqui.',
+          action: { label: 'Abrir calendário', href: '#calendario' },
+        }),
+      ),
+  },
+  treino: {
+    title: 'Treino AB',
+    label: 'Treino',
+    render: () =>
+      screen(
+        'Treino AB',
+        emptyState({
+          title: 'Modelos A e B',
+          text: 'A edição dos exercícios chega em breve (issue #7).',
+        }),
+      ),
+  },
+  calendario: {
+    title: 'Calendário',
+    label: 'Agenda',
+    render: () =>
+      screen(
+        'Calendário',
+        emptyState({
+          title: 'Nenhuma sessão planejada',
+          text: 'O calendário e o botão “Planejar semana” chegam em breve (issue #9).',
+        }),
+      ),
+  },
+  evolucao: {
+    title: 'Evolução',
+    label: 'Evolução',
+    render: () =>
+      screen(
+        'Evolução',
+        emptyState({
+          title: 'Sem medidas ou cargas ainda',
+          text: 'Registre peso e medidas e conclua treinos para ver seus gráficos aqui (issue #11).',
+        }),
+      ),
+  },
+  diario: {
+    title: 'Diário',
+    label: 'Diário',
+    render: () =>
+      screen(
+        'Diário',
+        emptyState({
+          title: 'Diário vazio',
+          text: 'Anote como se sentiu, dores, limitações e ajustes do treino (issue #12).',
+        }),
+      ),
+  },
 };
