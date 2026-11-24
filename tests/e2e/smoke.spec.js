@@ -1,23 +1,4 @@
-import { test as base, expect } from '@playwright/test';
-
-// Toda página falha o teste se tiver erro de JavaScript ou no console.
-const test = base.extend({
-  page: async ({ page }, use) => {
-    const errors = [];
-    page.on('pageerror', (e) => errors.push(e.message));
-    page.on('console', (m) => m.type() === 'error' && errors.push(m.text()));
-    await use(page);
-    expect(errors, 'erros no console').toEqual([]);
-  },
-});
-
-const ROUTES = [
-  ['painel', 'Visão geral'],
-  ['treino', 'Treino AB'],
-  ['calendario', 'Calendário'],
-  ['evolucao', 'Evolução'],
-  ['diario', 'Diário'],
-];
+import { test, expect, ROUTES } from './fixtures.js';
 
 test('abre na visão geral', async ({ page }) => {
   await page.goto('./');
@@ -28,11 +9,11 @@ test('abre na visão geral', async ({ page }) => {
 test('navega pelas 5 áreas pelo menu', async ({ page }) => {
   await page.goto('./');
   const nav = page.getByRole('navigation', { name: 'Principal' });
-  for (const [route, title] of ROUTES) {
-    await nav.getByRole('link', { name: title }).click();
+  for (const [route, title, label] of ROUTES) {
+    await nav.getByRole('link', { name: label }).click();
     await expect(page).toHaveURL(new RegExp(`#${route}$`));
     await expect(page.locator('#app h2')).toHaveText(title);
-    await expect(nav.getByRole('link', { name: title })).toHaveAttribute('aria-current', 'page');
+    await expect(nav.getByRole('link', { name: label })).toHaveAttribute('aria-current', 'page');
   }
 });
 
@@ -61,9 +42,9 @@ test('dados salvos continuam após recarregar', async ({ page }) => {
   const saved = await page.evaluate(async () => {
     const { app } = await import('./js/main.js');
     app.state.target = 6;
-    return app.store.save(app.state);
+    return app.save();
   });
-  expect(saved).toEqual({ ok: true });
+  expect(saved).toBe(true);
 
   await page.reload();
   const target = await page.evaluate(async () => (await import('./js/main.js')).app.state.target);
@@ -71,11 +52,11 @@ test('dados salvos continuam após recarregar', async ({ page }) => {
   await expect(page.locator('#status')).toBeEmpty();
 });
 
-test('dado corrompido gera aviso e cópia de segurança', async ({ page }) => {
+test('dado corrompido gera aviso de erro e cópia de segurança', async ({ page }) => {
   await page.goto('./');
   await page.evaluate(() => localStorage.setItem('ritmo:v1', '{quebrado'));
   await page.reload();
-  await expect(page.locator('#status')).toContainText('Uma cópia foi preservada');
+  await expect(page.getByRole('alert')).toContainText('Uma cópia foi preservada');
   const copies = await page.evaluate(() =>
     Object.keys(localStorage).filter((k) => k.startsWith('ritmo:corrupt:')),
   );

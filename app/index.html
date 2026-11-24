@@ -2,24 +2,22 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="Diário pessoal de academia: planeje, registre e acompanhe seus treinos.">
   <title>Ritmo — Minha rotina de treino</title>
   <link rel="stylesheet" href="style.css">
   <script type="module" src="js/main.js"></script>
 </head>
 <body>
-  <header class="app-header">
-    <h1>Ritmo</h1>
-  </header>
-  <nav class="app-nav" aria-label="Principal">
-    <a href="#painel">Visão geral</a>
-    <a href="#treino">Treino AB</a>
-    <a href="#calendario">Calendário</a>
-    <a href="#evolucao">Evolução</a>
-    <a href="#diario">Diário</a>
-  </nav>
-  <main id="app" tabindex="-1"></main>
-  <div id="status" class="status" role="status" aria-live="polite"></div>
-  <noscript>O Ritmo precisa de JavaScript para funcionar.</noscript>
+  <a class="skip-link" href="#app">Pular para o conteúdo</a>
+  <div class="layout">
+    <header class="app-header">
+      <span class="brand">Ritmo</span>
+    </header>
+    <nav id="nav" class="app-nav" aria-label="Principal"></nav>
+    <main id="app" tabindex="-1"></main>
+  </div>
+  <div id="status" class="status" aria-live="polite"></div>
+  <noscript><p class="noscript">O Ritmo precisa de JavaScript para funcionar.</p></noscript>
 </body>
 </html>
