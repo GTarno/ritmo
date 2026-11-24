@@ -62,8 +62,9 @@ test.describe('teclado e foco', () => {
 });
 
 test.describe('estados vazios', () => {
-  test('cada tela explica o que vai aparecer ali', async ({ page }) => {
-    for (const [route] of ROUTES) {
+  test('telas ainda sem dados explicam o que vai aparecer ali', async ({ page }) => {
+    // Treino AB já começa com os modelos preenchidos
+    for (const [route] of ROUTES.filter(([r]) => r !== 'treino')) {
       await page.goto(`./#${route}`);
       await expect(page.locator('#app .empty-state')).toBeVisible();
     }

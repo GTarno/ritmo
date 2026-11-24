@@ -2,6 +2,7 @@
 // A ordem aqui é a ordem do menu.
 import { h } from '../ui/dom.js';
 import { emptyState } from '../ui/empty-state.js';
+import { renderTreino } from './treino.js';
 
 export const DEFAULT_ROUTE = 'painel';
 
@@ -26,14 +27,7 @@ export const routes = {
   treino: {
     title: 'Treino AB',
     label: 'Treino',
-    render: () =>
-      screen(
-        'Treino AB',
-        emptyState({
-          title: 'Modelos A e B',
-          text: 'A edição dos exercícios chega em breve (issue #7).',
-        }),
-      ),
+    render: renderTreino,
   },
   calendario: {
     title: 'Calendário',

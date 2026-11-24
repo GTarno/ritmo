@@ -296,3 +296,94 @@ a { color: var(--color-accent); }
 @media (min-width: 900px) {
   .status { left: auto; bottom: var(--space-5); right: var(--space-5); }
 }
+
+.muted { color: var(--color-text-muted); }
+.icon-btn:disabled { opacity: 0.35; cursor: default; }
+.icon-btn:disabled:hover { background: transparent; }
+.icon-btn.danger { color: var(--color-danger); }
+
+/* Formulários */
+.field { display: flex; flex-direction: column; gap: var(--space-1); margin-bottom: var(--space-3); min-width: 0; }
+.field label { font-weight: 600; font-size: var(--text-sm); }
+.field .optional { font-weight: 400; color: var(--color-text-muted); }
+.field input, .field textarea, .field select {
+  width: 100%;
+  min-height: var(--tap);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg);
+  color: var(--color-text);
+  font: inherit;
+  font-size: max(16px, 1rem); /* evita zoom automático no iPhone */
+}
+.field textarea { resize: vertical; }
+.field [aria-invalid="true"] { border-color: var(--color-danger); }
+.field .hint { margin: 0; font-size: var(--text-sm); color: var(--color-text-muted); }
+.field .error { margin: 0; font-size: var(--text-sm); color: var(--color-danger); font-weight: 600; }
+.field .error:empty { display: none; }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); }
+.input-suffix { position: relative; }
+.input-suffix input { padding-right: 2.5rem; }
+.input-suffix span {
+  position: absolute;
+  right: var(--space-3);
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-text-muted);
+  pointer-events: none;
+}
+
+/* Seletor A/B */
+.segmented {
+  display: inline-flex;
+  padding: var(--space-1);
+  margin-bottom: var(--space-4);
+  border-radius: var(--radius);
+  background: var(--color-surface-2);
+}
+.segmented button {
+  min-height: var(--tap);
+  min-width: 7rem;
+  padding: 0 var(--space-4);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-muted);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.segmented button[aria-pressed="true"] {
+  background: var(--color-surface);
+  color: var(--color-accent);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.12);
+}
+
+/* Cartões de exercício */
+.plan-header { margin-bottom: var(--space-3); }
+.plan-header h3 { margin-bottom: 0; font-size: var(--text-lg); }
+.plan-header p { margin: 0; }
+
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: var(--space-3) var(--space-2) var(--space-3) var(--space-4);
+}
+.exercise-list { list-style: none; margin: 0 0 var(--space-3); padding: 0; display: grid; gap: var(--space-2); }
+.exercise { display: flex; align-items: center; gap: var(--space-2); }
+.exercise-main { flex: 1; min-width: 0; }
+.exercise-main h4 { margin: 0; font-size: var(--text-base); overflow-wrap: anywhere; }
+.exercise-main p { margin: 0; font-size: var(--text-sm); }
+.exercise-actions { display: flex; flex: none; }
+.add-btn { width: 100%; margin-bottom: var(--space-5); }
+.cardio { display: flex; align-items: center; gap: var(--space-3); padding-right: var(--space-3); }
+
+/* No celular estreito, os 4 botões vão para uma linha abaixo do nome */
+@media (max-width: 420px) {
+  .exercise { flex-wrap: wrap; }
+  .exercise-main { flex-basis: 100%; }
+  .exercise-actions { width: 100%; justify-content: flex-end; margin-top: var(--space-1); }
+  .cardio { flex-wrap: wrap; }
+}
