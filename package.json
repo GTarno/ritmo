@@ -4,9 +4,13 @@
   "type": "module",
   "description": "Diário pessoal de academia. Este arquivo serve só para scripts de desenvolvimento; o app publicado não tem build.",
   "scripts": {
-    "start": "npx --yes serve app",
+    "start": "node scripts/serve.js",
     "check": "node scripts/check-syntax.js",
-    "test": "node --test \"tests/unit/**/*.test.js\""
+    "test": "node --test \"tests/unit/**/*.test.js\"",
+    "test:e2e": "playwright test --trace off"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0"
   },
   "engines": {
     "node": ">=22"

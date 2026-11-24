@@ -10,10 +10,15 @@ Diário pessoal de academia em português do Brasil: planejar a semana, registra
 Sem build. Requer Node 22+ apenas para os scripts de desenvolvimento.
 
 ```bash
-npm start        # serve app/ em http://localhost:3000
-npm run check    # node --check em todos os .js de app/
-npm test         # testes unitários (node:test)
+npm install                          # só ferramentas de teste
+npm start                            # app em http://localhost:4173/ritmo/ (igual ao Pages)
+npm run check                        # node --check em todos os .js de app/
+npm test                             # testes unitários (node:test)
+npx playwright install chromium      # uma vez, para os testes e2e
+npm run test:e2e                     # testes no navegador (desktop e celular)
 ```
+
+O CI (`.github/workflows/ci.yml`) roda sintaxe, testes unitários e e2e em todo pull request.
 
 ## Organização do código
 
@@ -24,7 +29,8 @@ app/                 ← publicado no GitHub Pages, sem build
   js/domain/         ← regras puras: sem DOM, sem localStorage (fácil de testar)
   js/views/          ← uma tela por arquivo
   js/ui/             ← componentes de interface reaproveitáveis
-tests/unit/          ← testes de domain/ com node:test
+tests/unit/          ← testes de regras com node:test
+tests/e2e/           ← testes no navegador com Playwright
 scripts/             ← utilitários de desenvolvimento
 ```
 
