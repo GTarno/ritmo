@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures.js';
+import { test, expect, hasHorizontalOverflow } from './fixtures.js';
 
 // Terça-feira, 24/11/2026, 18h em São Paulo
 const NOW = new Date('2026-11-24T18:00:00-03:00');
@@ -204,6 +204,6 @@ test('data inválida mostra aviso; menu destaca a Agenda', async ({ page }) => {
 test('sem rolagem horizontal na sessão em 360px', async ({ page }) => {
   await page.setViewportSize({ width: 360, height: 740 });
   await startToday(page, 'A');
-  const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
+  const overflow = await hasHorizontalOverflow(page);
   expect(overflow).toBe(false);
 });

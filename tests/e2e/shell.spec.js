@@ -1,4 +1,4 @@
-import { test, expect, ROUTES } from './fixtures.js';
+import { test, expect, ROUTES, hasHorizontalOverflow } from './fixtures.js';
 
 test.describe('menu', () => {
   test('no celular fica fixo embaixo, com alvos de toque ≥ 44px', async ({ page, isMobile }) => {
@@ -33,7 +33,7 @@ test.describe('menu', () => {
     await page.setViewportSize({ width: 360, height: 740 });
     for (const [route] of ROUTES) {
       await page.goto(`./#${route}`);
-      const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
+      const overflow = await hasHorizontalOverflow(page);
       expect(overflow, route).toBe(false);
     }
   });
@@ -65,7 +65,7 @@ test.describe('estados vazios', () => {
   test('telas ainda sem dados explicam o que vai aparecer ali', async ({ page }) => {
     for (const [route] of ROUTES.filter(([r]) => ['evolucao', 'diario'].includes(r))) {
       await page.goto(`./#${route}`);
-      await expect(page.locator('#app .empty-state')).toBeVisible();
+      await expect(page.locator('#app .empty-state').first()).toBeVisible();
     }
   });
 

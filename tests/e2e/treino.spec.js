@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures.js';
+import { test, expect, hasHorizontalOverflow } from './fixtures.js';
 
 const stored = (page) => page.evaluate(() => JSON.parse(localStorage.getItem('ritmo:v1')).data);
 const list = (page) => page.getByRole('list', { name: /Exercícios do treino/ });
@@ -166,6 +166,6 @@ test('sem rolagem horizontal com nome longo em 360px', async ({ page }) => {
   await page.getByRole('button', { name: 'Editar Supino na máquina' }).click();
   await page.getByRole('dialog').getByLabel('Nome').fill('Supinoinclinadocomhalteresnobancoregulavel'.slice(0, 60));
   await page.getByRole('dialog').getByRole('button', { name: 'Salvar' }).click();
-  const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
+  const overflow = await hasHorizontalOverflow(page);
   expect(overflow).toBe(false);
 });

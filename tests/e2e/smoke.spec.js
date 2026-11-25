@@ -1,4 +1,4 @@
-import { test, expect, ROUTES } from './fixtures.js';
+import { test, expect, ROUTES, hasHorizontalOverflow } from './fixtures.js';
 
 test('abre na visão geral', async ({ page }) => {
   await page.goto('./');
@@ -32,7 +32,7 @@ test('rota inexistente cai na visão geral', async ({ page }) => {
 test('sem rolagem horizontal', async ({ page }) => {
   for (const [route] of ROUTES) {
     await page.goto(`./#${route}`);
-    const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
+    const overflow = await hasHorizontalOverflow(page);
     expect(overflow, route).toBe(false);
   }
 });

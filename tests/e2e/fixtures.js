@@ -21,3 +21,18 @@ export const ROUTES = [
   ['evolucao', 'Evolução', 'Evolução'],
   ['diario', 'Diário', 'Diário'],
 ];
+
+/**
+ * true se a página rola na horizontal. No celular emulado, `innerWidth` cresce
+ * junto com o conteúdo largo, então a comparação é com a menor entre a largura
+ * da tela e a da janela.
+ */
+export const hasHorizontalOverflow = (page) =>
+  page.evaluate(() => document.documentElement.scrollWidth > Math.min(screen.width, window.innerWidth));
+
+/**
+ * Espera o diálogo terminar de fechar. `getByRole('dialog')` some assim que o
+ * diálogo fecha (fica oculto), mas o app só grava no evento `close`, que vem
+ * depois; o elemento só sai do DOM nesse evento.
+ */
+export const dialogClosed = (page) => expect(page.locator('dialog')).toHaveCount(0);
