@@ -27,6 +27,7 @@ const ASSETS = [
   'js/store.js',
   'js/dates.js',
   'js/pwa.js',
+  'js/persistence.js',
   'js/domain/backup.js',
   'js/domain/calendar.js',
   'js/domain/dashboard.js',

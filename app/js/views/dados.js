@@ -4,6 +4,7 @@ import { h, icon, ICONS } from '../ui/dom.js';
 import { confirmDialog } from '../ui/dialog.js';
 import { showStatus } from '../ui/status.js';
 import { today as todayIn, formatNumeric, diffDays } from '../dates.js';
+import { storageStatus, requestPersistence, formatBytes } from '../persistence.js';
 import { isStandalone, canPromptInstall, promptInstall, platform, onInstallChange } from '../pwa.js';
 import { buildBackup, backupFileName, parseBackup, summarize, markBackup, isoToDate } from '../domain/backup.js';
 
@@ -152,6 +153,72 @@ function installCard(rerender) {
   );
 }
 
+// ---------- Proteção dos dados ----------
+
+function protectionCard(rerender) {
+  const body = h('div', { 'aria-live': 'polite' }, h('p', { class: 'muted' }, 'Verificando…'));
+  const card = h(
+    'section',
+    { class: 'card', 'aria-labelledby': 'protection-title' },
+    h('h3', { id: 'protection-title', tabindex: -1 }, 'Proteção dos dados'),
+    body,
+  );
+
+  storageStatus().then((status) => {
+    const usage =
+      status.usage !== null &&
+      h('p', { class: 'muted' }, `Espaço usado pelo app neste navegador: ${formatBytes(status.usage)}.`);
+
+    if (!status.supported) {
+      body.replaceChildren(
+        h('p', {}, 'Este navegador não informa se protege os dados. Faça backups com frequência.'),
+      );
+      return;
+    }
+    if (status.persisted) {
+      body.replaceChildren(
+        h('p', { class: 'protection-ok' }, h('strong', {}, 'Protegido. '), 'O navegador não apaga os dados do Ritmo para liberar espaço.'),
+        usage,
+        h('p', { class: 'muted' }, 'Ainda assim, limpar os dados do site ou trocar de aparelho apaga tudo: mantenha um backup.'),
+      );
+      return;
+    }
+    body.replaceChildren(
+      h(
+        'p',
+        { class: 'protection-warn' },
+        h('strong', {}, 'Não protegido. '),
+        'O navegador pode apagar os dados do Ritmo se faltar espaço ou se o site ficar semanas sem uso (comum no Safari do iPhone).',
+      ),
+      h(
+        'ul',
+        { class: 'summary-list' },
+        h('li', {}, 'Instale o app (veja “Usar como app”): apps instalados costumam ser protegidos.'),
+        h('li', {}, 'Faça backups com frequência.'),
+      ),
+      usage,
+      h(
+        'button',
+        {
+          type: 'button',
+          class: 'btn',
+          dataset: { action: 'persist' },
+          onclick: async () => {
+            const ok = await requestPersistence();
+            showStatus(
+              ok ? 'Pronto: o navegador vai proteger os dados do Ritmo.' : 'O navegador não liberou a proteção agora. Instalar o app costuma ajudar.',
+              { type: ok ? 'success' : 'info' },
+            );
+            rerender('#protection-title');
+          },
+        },
+        'Pedir proteção ao navegador',
+      ),
+    );
+  });
+  return card;
+}
+
 // ---------- Tela ----------
 
 export function renderDados() {
@@ -174,6 +241,7 @@ export function renderDados() {
 
     body.replaceChildren(
       installCard(rerender),
+      protectionCard(rerender),
       h(
         'section',
         { class: 'card', 'aria-labelledby': 'where-title' },

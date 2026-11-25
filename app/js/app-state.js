@@ -3,6 +3,7 @@
 import { createStore } from './store.js';
 import { today } from './dates.js';
 import { showStatus } from './ui/status.js';
+import { requestPersistenceOnce } from './persistence.js';
 
 const store = createStore();
 const loaded = store.load();
@@ -31,6 +32,8 @@ export const app = {
   save() {
     const result = store.save(app.state);
     if (!result.ok) showStatus(result.message, { type: 'error' });
+    // Depois da primeira gravação, pede ao navegador para não apagar os dados.
+    else requestPersistenceOnce();
     return result.ok;
   },
 
