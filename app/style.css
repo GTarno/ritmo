@@ -719,3 +719,38 @@ input[type="checkbox"], input[type="radio"] {
   .charts { grid-template-columns: 1fr 1fr; }
 }
 .progress-screen > *, .charts > * { min-width: 0; }
+
+/* Diário */
+.journal { display: grid; gap: var(--space-3); justify-items: start; }
+.journal > * { justify-self: stretch; min-width: 0; }
+.journal > .btn { justify-self: start; }
+.journal > p { margin: 0; }
+.filters { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); max-width: 28rem; }
+.filters .field { margin: 0; }
+.field select {
+  appearance: auto;
+}
+.note-list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-2); }
+.note { padding-right: var(--space-2); }
+.note-head { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-2); }
+.note-title { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); padding-top: var(--space-2); font-size: var(--text-sm); color: var(--color-text-muted); }
+.note-actions { display: flex; flex: none; }
+.note-text { margin: var(--space-2) var(--space-2) var(--space-2) 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.note-meta { margin: 0; font-size: var(--text-sm); }
+.tag {
+  display: inline-block;
+  padding: 2px var(--space-2);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  background: var(--color-surface-2);
+  color: var(--color-text);
+}
+.tag[data-category="dor"] { background: color-mix(in srgb, var(--color-danger) 15%, transparent); }
+.tag[data-category="limitacao"] { background: var(--color-accent-soft); }
+.tag-auto { font-weight: 400; color: var(--color-text-muted); background: transparent; border: 1px solid var(--color-border); }
+
+/* Em telas muito estreitas, campos lado a lado ficam cortados: uma coluna só */
+@media (max-width: 359px) {
+  .field-row { grid-template-columns: 1fr; gap: 0; }
+}

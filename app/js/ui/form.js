@@ -77,3 +77,25 @@ export function showErrors(form, errors = {}) {
   first?.focus();
   return first !== null;
 }
+
+/**
+ * Campo de seleção com o mesmo padrão de rótulo, dica e erro do `field`.
+ * @param {{ label: string, name: string, options: Array<{ value: string, label: string }>, value?: string, hint?: string, required?: boolean }} o
+ */
+export function selectField({ label, name, options, value = '', hint, required = false }) {
+  const id = `f-${name}-${++counter}`;
+  const hintId = hint ? `${id}-hint` : null;
+  const errorId = `${id}-error`;
+  return h(
+    'div',
+    { class: 'field' },
+    h('label', { for: id }, label, required ? null : h('span', { class: 'optional' }, ' (opcional)')),
+    h(
+      'select',
+      { id, name, required, 'aria-describedby': [hintId, errorId].filter(Boolean).join(' '), dataset: { errorId } },
+      options.map((o) => h('option', { value: o.value, selected: o.value === value }, o.label)),
+    ),
+    hint && h('p', { class: 'hint', id: hintId }, hint),
+    h('p', { class: 'error', id: errorId }),
+  );
+}
