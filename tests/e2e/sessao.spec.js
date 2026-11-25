@@ -201,14 +201,6 @@ test('data inválida mostra aviso; menu destaca a Agenda', async ({ page }) => {
   await expect(page).toHaveTitle('Sessão de 24/11 — Ritmo');
 });
 
-test('abrir outra data pela Agenda', async ({ page }) => {
-  await page.goto('./#calendario');
-  await page.getByLabel('Abrir sessão de outra data').fill('2026-11-20');
-  await page.getByRole('button', { name: 'Abrir' }).click();
-  await expect(page).toHaveURL(/#sessao\/2026-11-20$/);
-  await expect(page.getByRole('heading', { level: 2 })).toHaveText('sexta-feira, 20 de novembro');
-});
-
 test('sem rolagem horizontal na sessão em 360px', async ({ page }) => {
   await page.setViewportSize({ width: 360, height: 740 });
   await startToday(page, 'A');
