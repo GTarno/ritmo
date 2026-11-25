@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures.js';
+import { test, expect, hasHorizontalOverflow, dialogClosed } from './fixtures.js';
 
 // Terça-feira, 24/11/2026, 18h em São Paulo
 const NOW = new Date('2026-11-24T18:00:00-03:00');
@@ -185,6 +185,7 @@ test('editar o modelo depois de abrir a sessão não muda a sessão', async ({ p
   await page.getByRole('button', { name: 'Editar Supino na máquina' }).click();
   await page.getByRole('dialog').getByLabel('Nome').fill('Supino reto');
   await page.getByRole('dialog').getByRole('button', { name: 'Salvar' }).click();
+  await dialogClosed(page);
 
   await page.goto(`./#sessao/${TODAY}`);
   await expect(exercises(page).first()).toContainText('Supino na máquina');
@@ -204,6 +205,6 @@ test('data inválida mostra aviso; menu destaca a Agenda', async ({ page }) => {
 test('sem rolagem horizontal na sessão em 360px', async ({ page }) => {
   await page.setViewportSize({ width: 360, height: 740 });
   await startToday(page, 'A');
-  const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
+  const overflow = await hasHorizontalOverflow(page);
   expect(overflow).toBe(false);
 });

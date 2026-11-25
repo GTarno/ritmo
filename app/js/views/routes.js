@@ -6,6 +6,7 @@ import { renderTreino } from './treino.js';
 import { renderSessao, sessionTitle } from './sessao.js';
 import { renderPainel } from './painel.js';
 import { renderCalendario } from './calendario.js';
+import { renderEvolucao } from './evolucao.js';
 
 export const DEFAULT_ROUTE = 'painel';
 
@@ -32,14 +33,7 @@ export const routes = {
   evolucao: {
     title: 'Evolução',
     label: 'Evolução',
-    render: () =>
-      screen(
-        'Evolução',
-        emptyState({
-          title: 'Sem medidas ou cargas ainda',
-          text: 'Registre peso e medidas e conclua treinos para ver seus gráficos aqui (issue #11).',
-        }),
-      ),
+    render: renderEvolucao,
   },
   diario: {
     title: 'Diário',

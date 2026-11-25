@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures.js';
+import { test, expect, hasHorizontalOverflow } from './fixtures.js';
 
 // Terça-feira, 24/11/2026, 18h em São Paulo
 const NOW = new Date('2026-11-24T18:00:00-03:00');
@@ -118,7 +118,7 @@ test('sessão concluída aparece no calendário e conta na semana', async ({ pag
 
 test('sem rolagem horizontal em 360px nas duas visões', async ({ page }) => {
   await page.setViewportSize({ width: 360, height: 740 });
-  const overflow = () => page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
+  const overflow = () => hasHorizontalOverflow(page);
   expect(await overflow()).toBe(false);
   await page.getByRole('button', { name: 'Mês', exact: true }).click();
   expect(await overflow()).toBe(false);

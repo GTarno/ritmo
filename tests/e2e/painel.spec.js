@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures.js';
+import { test, expect, hasHorizontalOverflow, dialogClosed } from './fixtures.js';
 
 // Terça-feira, 24/11/2026, 18h em São Paulo
 const NOW = new Date('2026-11-24T18:00:00-03:00');
@@ -97,6 +97,7 @@ test('mostra o próximo treino planejado quando hoje está livre', async ({ page
   await page.getByRole('button', { name: 'Planejar semana' }).click();
   await page.getByRole('dialog').getByLabel('Uma data da semana').fill('2026-11-30');
   await page.getByRole('dialog').getByRole('button', { name: 'Planejar' }).click();
+  await dialogClosed(page);
 
   await page.goto('./');
   await expect(region(page, 'Treino de hoje')).toContainText('Próximo planejado: seg 30/11 · Treino A');
@@ -116,5 +117,5 @@ test('último peso aparece quando há registro', async ({ page }) => {
 test('sem rolagem horizontal em 360px', async ({ page }) => {
   await page.setViewportSize({ width: 360, height: 740 });
   await page.goto('./');
-  expect(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth)).toBe(false);
+  expect(await hasHorizontalOverflow(page)).toBe(false);
 });
