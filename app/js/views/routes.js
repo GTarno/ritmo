@@ -4,7 +4,8 @@ import { h } from '../ui/dom.js';
 import { emptyState } from '../ui/empty-state.js';
 import { renderTreino } from './treino.js';
 import { renderSessao, sessionTitle } from './sessao.js';
-import { todayCard, openDateForm } from './today-card.js';
+import { todayCard } from './today-card.js';
+import { renderCalendario } from './calendario.js';
 
 export const DEFAULT_ROUTE = 'painel';
 
@@ -34,15 +35,7 @@ export const routes = {
   calendario: {
     title: 'Calendário',
     label: 'Agenda',
-    render: () =>
-      screen(
-        'Calendário',
-        openDateForm(),
-        emptyState({
-          title: 'Calendário em breve',
-          text: 'A visão semanal e mensal e o botão “Planejar semana” chegam na issue #9.',
-        }),
-      ),
+    render: renderCalendario,
   },
   evolucao: {
     title: 'Evolução',

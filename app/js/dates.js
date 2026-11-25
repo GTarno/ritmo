@@ -191,3 +191,23 @@ export const formatLong = (date) => format(date, { weekday: 'long', day: 'numeri
 
 /** "novembro de 2026" */
 export const formatMonthYear = (date) => format(date, { month: 'long', year: 'numeric' });
+
+/** "30 de novembro" */
+export const formatDayMonth = (date) => format(date, { day: 'numeric', month: 'long' });
+
+/** "segunda-feira" */
+export const weekdayLong = (date) => format(date, { weekday: 'long' });
+
+/**
+ * Intervalo da semana que começa em `start`:
+ * "23 – 29 de novembro de 2026", "30 de novembro – 6 de dezembro de 2026",
+ * "28 de dezembro de 2026 – 3 de janeiro de 2027".
+ */
+export function formatWeekRange(start) {
+  const end = addDays(start, 6);
+  const { y: y1, m: m1, d: d1 } = parts(start);
+  const { y: y2, m: m2, d: d2 } = parts(end);
+  if (y1 !== y2) return `${formatDayMonth(start)} de ${y1} – ${formatDayMonth(end)} de ${y2}`;
+  if (m1 !== m2) return `${formatDayMonth(start)} – ${formatDayMonth(end)} de ${y2}`;
+  return `${d1} – ${d2} de ${format(end, { month: 'long' })} de ${y2}`;
+}

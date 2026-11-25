@@ -69,4 +69,6 @@ export const ICONS = {
   editar: ['M4 20h4L19 9l-4-4L4 16z', 'M13.5 6.5l4 4'],
   lixo: ['M4 7h16', 'M10 11v6', 'M14 11v6', 'M6 7l1 13h10l1-13', 'M9 7V4h6v3'],
   mais: ['M12 5v14', 'M5 12h14'],
+  anterior: ['M15 18l-6-6 6-6'],
+  proximo: ['M9 18l6-6-6-6'],
 };

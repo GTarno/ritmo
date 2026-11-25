@@ -133,3 +133,11 @@ test("nenhum módulo fora de dates.js usa new Date('AAAA-MM-DD')", () => {
     .filter((f) => /new Date\(\s*['"`]\d{4}-\d{2}-\d{2}/.test(readFileSync(f, 'utf8')));
   assert.deepEqual(offenders, []);
 });
+
+test('formatWeekRange', () => {
+  assert.equal(D.formatWeekRange('2026-11-23'), '23 – 29 de novembro de 2026');
+  assert.equal(D.formatWeekRange('2026-11-30'), '30 de novembro – 6 de dezembro de 2026');
+  assert.equal(D.formatWeekRange('2026-12-28'), '28 de dezembro de 2026 – 3 de janeiro de 2027');
+  assert.equal(D.formatDayMonth('2026-12-06'), '6 de dezembro');
+  assert.equal(D.weekdayLong('2026-11-23'), 'segunda-feira');
+});
