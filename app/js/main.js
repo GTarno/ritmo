@@ -12,7 +12,9 @@ nav.replaceChildren(
   h(
     'ul',
     {},
-    Object.entries(routes).map(([name, route]) =>
+    Object.entries(routes)
+      .filter(([, route]) => !route.hidden)
+      .map(([name, route]) =>
       h(
         'li',
         {},

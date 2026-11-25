@@ -1,8 +1,10 @@
 // Mapa de rotas. Cada tela ganha seu próprio arquivo em views/ nas issues do M1.
-// A ordem aqui é a ordem do menu.
+// A ordem aqui é a ordem do menu; rotas com `hidden` não aparecem no menu.
 import { h } from '../ui/dom.js';
 import { emptyState } from '../ui/empty-state.js';
 import { renderTreino } from './treino.js';
+import { renderSessao, sessionTitle } from './sessao.js';
+import { todayCard, openDateForm } from './today-card.js';
 
 export const DEFAULT_ROUTE = 'painel';
 
@@ -17,10 +19,10 @@ export const routes = {
     render: () =>
       screen(
         'Visão geral',
+        todayCard(),
         emptyState({
-          title: 'Nenhum treino registrado ainda',
-          text: 'Planeje sua semana no calendário e registre o primeiro treino para acompanhar sua constância aqui.',
-          action: { label: 'Abrir calendário', href: '#calendario' },
+          title: 'Resumo da semana em breve',
+          text: 'Frequência, último peso e histórico recente aparecem aqui (issue #10).',
         }),
       ),
   },
@@ -35,9 +37,10 @@ export const routes = {
     render: () =>
       screen(
         'Calendário',
+        openDateForm(),
         emptyState({
-          title: 'Nenhuma sessão planejada',
-          text: 'O calendário e o botão “Planejar semana” chegam em breve (issue #9).',
+          title: 'Calendário em breve',
+          text: 'A visão semanal e mensal e o botão “Planejar semana” chegam na issue #9.',
         }),
       ),
   },
@@ -64,5 +67,11 @@ export const routes = {
           text: 'Anote como se sentiu, dores, limitações e ajustes do treino (issue #12).',
         }),
       ),
+  },
+  sessao: {
+    title: sessionTitle,
+    hidden: true,
+    navParent: 'calendario',
+    render: renderSessao,
   },
 };
