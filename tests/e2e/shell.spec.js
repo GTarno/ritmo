@@ -70,10 +70,11 @@ test.describe('estados vazios', () => {
     }
   });
 
-  test('ação do estado vazio leva à tela certa', async ({ page }) => {
+  test('atalho do início leva à sessão de hoje', async ({ page }) => {
     await page.goto('./');
-    await page.getByRole('link', { name: 'Abrir calendário' }).click();
-    await expect(page.locator('#app h2')).toHaveText('Calendário');
+    await page.getByRole('link', { name: 'Começar treino de hoje' }).click();
+    await expect(page).toHaveURL(/#sessao\/\d{4}-\d{2}-\d{2}$/);
+    await expect(page.locator('#app h2')).toContainText('Hoje · ');
   });
 });
 
