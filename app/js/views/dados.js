@@ -4,6 +4,7 @@ import { h, icon, ICONS } from '../ui/dom.js';
 import { confirmDialog } from '../ui/dialog.js';
 import { showStatus } from '../ui/status.js';
 import { today as todayIn, formatNumeric, diffDays } from '../dates.js';
+import { isStandalone, canPromptInstall, promptInstall, platform, onInstallChange } from '../pwa.js';
 import { buildBackup, backupFileName, parseBackup, summarize, markBackup, isoToDate } from '../domain/backup.js';
 
 export const PRE_IMPORT_PREFIX = 'ritmo:pre-import:';
@@ -107,6 +108,50 @@ async function onImport(file, rerender) {
   rerender('[data-action="import"]');
 }
 
+// ---------- Instalar ----------
+
+const INSTALL_STEPS = {
+  ios: 'No Safari, toque em Compartilhar (o quadrado com a seta para cima) e depois em “Adicionar à Tela de Início”.',
+  android: 'No Chrome, toque no menu ⋮ e depois em “Instalar app” ou “Adicionar à tela inicial”.',
+  outro: 'No celular, abra este endereço no navegador e use “Adicionar à tela inicial”. No computador, use o ícone de instalar na barra de endereço.',
+};
+
+function installCard(rerender) {
+  let content;
+  if (isStandalone()) {
+    content = h('p', {}, 'Você está usando o Ritmo instalado. Ele abre pelo ícone e funciona sem internet.');
+  } else if (canPromptInstall()) {
+    content = [
+      h('p', {}, 'Instale o Ritmo para abrir pelo ícone, em tela cheia, e usar sem internet na academia.'),
+      h(
+        'button',
+        {
+          type: 'button',
+          class: 'btn btn-primary',
+          dataset: { action: 'install' },
+          onclick: async () => {
+            await promptInstall();
+            rerender('[data-action="download"]');
+          },
+        },
+        'Instalar o Ritmo',
+      ),
+    ];
+  } else {
+    content = [
+      h('p', {}, 'Adicione o Ritmo à tela inicial para abrir pelo ícone, em tela cheia, e usar sem internet na academia.'),
+      h('p', { class: 'install-steps' }, INSTALL_STEPS[platform()]),
+    ];
+  }
+  return h(
+    'section',
+    { class: 'card', 'aria-labelledby': 'install-title' },
+    h('h3', { id: 'install-title' }, 'Usar como app'),
+    content,
+    !isStandalone() && h('p', { class: 'muted' }, 'Depois de aberto uma vez, o app funciona sem internet.'),
+  );
+}
+
 // ---------- Tela ----------
 
 export function renderDados() {
@@ -128,6 +173,7 @@ export function renderDados() {
     });
 
     body.replaceChildren(
+      installCard(rerender),
       h(
         'section',
         { class: 'card', 'aria-labelledby': 'where-title' },
@@ -174,6 +220,9 @@ export function renderDados() {
     );
     if (focusSelector) body.querySelector(focusSelector)?.focus();
   }
+
+  // Redesenha quando o navegador passa a oferecer (ou deixa de oferecer) a instalação.
+  const stop = onInstallChange(() => (root.isConnected ? rerender() : stop()));
 
   rerender();
   return root;

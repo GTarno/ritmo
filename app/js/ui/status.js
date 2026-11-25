@@ -17,9 +17,10 @@ export function clearStatus() {
 
 /**
  * @param {string} message
- * @param {{ type?: 'info' | 'success' | 'error', timeout?: number }} [options]
+ * @param {{ type?: 'info' | 'success' | 'error', timeout?: number, action?: { label: string, onClick: () => void } }} [options]
+ *   action: botão dentro do aviso (ex.: "Atualizar"); avisos com ação não somem sozinhos
  */
-export function showStatus(message, { type = 'info', timeout } = {}) {
+export function showStatus(message, { type = 'info', timeout, action } = {}) {
   const root = region();
   if (!root || !message) return;
   clearTimeout(timer);
@@ -29,6 +30,19 @@ export function showStatus(message, { type = 'info', timeout } = {}) {
     'div',
     { class: ['toast', `toast-${type}`], role: isError ? 'alert' : null },
     h('p', {}, message),
+    action &&
+      h(
+        'button',
+        {
+          type: 'button',
+          class: 'btn toast-action',
+          onclick: () => {
+            clearStatus();
+            action.onClick();
+          },
+        },
+        action.label,
+      ),
     h(
       'button',
       { type: 'button', class: 'icon-btn', 'aria-label': 'Fechar aviso', onclick: clearStatus },
@@ -37,6 +51,6 @@ export function showStatus(message, { type = 'info', timeout } = {}) {
   );
   root.replaceChildren(toast);
 
-  const ms = timeout ?? (isError ? 0 : INFO_TIMEOUT);
+  const ms = timeout ?? (isError || action ? 0 : INFO_TIMEOUT);
   if (ms > 0) timer = setTimeout(clearStatus, ms);
 }

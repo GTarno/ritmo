@@ -26,6 +26,9 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - uses: actions/configure-pages@v6
+      # Versão do cache offline = commit publicado (o app avisa que há versão nova)
+      - name: Versão do service worker
+        run: sed -i "s/__VERSION__/${GITHUB_SHA::12}/" app/sw.js && grep -n "const VERSION" app/sw.js
       - uses: actions/upload-pages-artifact@v5
         with:
           path: app

@@ -4,6 +4,7 @@ import { createRouter } from './router.js';
 import { routes, DEFAULT_ROUTE } from './views/routes.js';
 import { h, icon, ICONS } from './ui/dom.js';
 import { showStatus } from './ui/status.js';
+import { setupPwa } from './pwa.js';
 
 export { app };
 
@@ -41,3 +42,5 @@ router.render({ moveFocus: false });
 
 const { message, status } = app.loaded;
 if (message) showStatus(message, { type: status === 'migrated' ? 'info' : 'error' });
+
+setupPwa();
