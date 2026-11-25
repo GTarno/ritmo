@@ -185,5 +185,22 @@ export function createStore({
     }
   }
 
-  return { load, save, isBlocked: () => blocked };
+  /**
+   * Guarda uma cópia do que está gravado agora em `${prefix}${timestamp}`
+   * (ex.: antes de substituir tudo por um backup). Devolve a chave ou null.
+   */
+  function snapshot(prefix) {
+    if (!storage) return null;
+    try {
+      const raw = storage.getItem(STORAGE_KEY);
+      if (raw === null) return null;
+      const key = `${prefix}${now()}`;
+      write(key, raw);
+      return key;
+    } catch {
+      return null;
+    }
+  }
+
+  return { load, save, snapshot, isBlocked: () => blocked };
 }

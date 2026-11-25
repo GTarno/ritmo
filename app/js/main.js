@@ -29,6 +29,8 @@ nav.replaceChildren(
   ),
 );
 
+document.getElementById('data-link').replaceChildren(icon(ICONS.dados, { size: 22 }));
+
 const router = createRouter({
   routes,
   defaultRoute: DEFAULT_ROUTE,

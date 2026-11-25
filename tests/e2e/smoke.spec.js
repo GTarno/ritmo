@@ -29,8 +29,9 @@ test('rota inexistente cai na visão geral', async ({ page }) => {
   await expect(page.locator('#app h2')).toHaveText('Visão geral');
 });
 
-test('sem rolagem horizontal', async ({ page }) => {
-  for (const [route] of ROUTES) {
+test('sem rolagem horizontal em 320px (iPhone SE) em todas as telas', async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 640 });
+  for (const route of [...ROUTES.map(([r]) => r), 'dados', 'sessao/2026-11-24']) {
     await page.goto(`./#${route}`);
     const overflow = await hasHorizontalOverflow(page);
     expect(overflow, route).toBe(false);

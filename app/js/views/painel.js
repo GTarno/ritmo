@@ -7,6 +7,7 @@ import { formDialog } from '../ui/dialog.js';
 import { showStatus } from '../ui/status.js';
 import { emptyState } from '../ui/empty-state.js';
 import { formatShort, formatLong, weekdayShort } from '../dates.js';
+import { backupReminder } from '../domain/backup.js';
 import { formatNumber } from '../domain/plans.js';
 import { getSession, sessionStatus, suggestedType, progressLabel } from '../domain/sessions.js';
 import {
@@ -215,6 +216,25 @@ function recentCard() {
   );
 }
 
+// ---------- Lembrete de backup ----------
+
+function backupCard(today) {
+  const { show, days } = backupReminder(app.state, today);
+  if (!show) return null;
+  return h(
+    'section',
+    { class: 'card backup-card', role: 'note', 'aria-labelledby': 'backup-title' },
+    h('h3', { id: 'backup-title' }, 'Hora de fazer backup'),
+    h(
+      'p',
+      {},
+      days === null ? 'Você ainda não fez nenhum backup. ' : `Seu último backup foi há ${days} dias e há registros novos. `,
+      'Seus dados ficam só neste navegador.',
+    ),
+    h('a', { class: 'btn', href: '#dados' }, 'Fazer backup'),
+  );
+}
+
 // ---------- Orientação ----------
 
 function guidanceCard() {
@@ -243,7 +263,9 @@ export function renderPainel() {
 
   function rerender(focusSelector) {
     const today = app.today();
-    body.replaceChildren(goalCard(rerender), todayCard(today), weekCard(today), statsCard(), recentCard(), guidanceCard());
+    body.replaceChildren(
+      ...[backupCard(today), goalCard(rerender), todayCard(today), weekCard(today), statsCard(), recentCard(), guidanceCard()].filter(Boolean),
+    );
     if (focusSelector) body.querySelector(focusSelector)?.focus();
   }
 

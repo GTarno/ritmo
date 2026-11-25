@@ -119,6 +119,7 @@ export function openDialog({ title, content = [], actions = [{ label: 'Fechar', 
 
 /**
  * Pergunta de confirmação. Resolve true só se a usuária confirmar.
+ * `message` pode ser texto ou elementos (listas, vários parágrafos).
  * O foco inicial fica em "Cancelar" para evitar confirmações acidentais.
  */
 export async function confirmDialog(
@@ -127,7 +128,7 @@ export async function confirmDialog(
 ) {
   const result = await openDialog({
     title,
-    content: h('p', {}, message),
+    content: typeof message === 'string' ? h('p', {}, message) : message,
     actions: [
       { label: cancelLabel, cancel: true, autofocus: true },
       { label: confirmLabel, value: true, variant: danger ? 'danger' : 'primary' },

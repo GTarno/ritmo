@@ -666,7 +666,7 @@ input[type="checkbox"], input[type="radio"] {
 .chart-figure { margin: 0; }
 .chart-plot { position: relative; width: 100%; border-radius: var(--radius-sm); touch-action: pan-y; }
 .chart-plot:focus-visible { outline-offset: 4px; }
-.chart { display: block; overflow: visible; }
+.chart { display: block; overflow: visible; max-width: 100%; height: auto; }
 .chart-grid { stroke: var(--chart-grid); stroke-width: 1; }
 .chart-tick { fill: var(--color-text-muted); font-size: 12px; font-variant-numeric: tabular-nums; }
 .chart-line { fill: none; stroke: var(--chart-series); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
@@ -754,3 +754,22 @@ input[type="checkbox"], input[type="radio"] {
 @media (max-width: 359px) {
   .field-row { grid-template-columns: 1fr; gap: 0; }
 }
+
+/* Cabeçalho com atalho para "Seus dados" */
+.app-header { display: flex; align-items: center; justify-content: space-between; }
+.app-header .icon-btn { color: var(--color-text-muted); margin-right: calc(-1 * var(--space-2)); }
+
+/* Seus dados */
+.data-screen { display: grid; gap: var(--space-4); }
+.data-screen .card { padding-right: var(--space-4); }
+.data-screen h3 { font-size: var(--text-lg); margin-bottom: var(--space-2); }
+.data-screen .actions { margin-bottom: 0; }
+.summary-list { margin: 0 0 var(--space-3); padding-left: 1.25rem; display: grid; gap: var(--space-1); }
+.backup-card { border-color: var(--color-accent); background: var(--color-accent-soft); padding-right: var(--space-4); }
+.backup-card p { margin-bottom: var(--space-3); }
+@media (min-width: 900px) { .backup-card { grid-column: 1 / -1; } }
+
+/* Itens de grid não podem ser mais largos que a tela (iPhone SE: 320px) */
+.dashboard > * { min-width: 0; }
+.stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.week-strip { grid-template-columns: repeat(7, minmax(0, 1fr)); }

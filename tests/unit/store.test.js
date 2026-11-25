@@ -167,3 +167,15 @@ test('migrate() e validateState() isolados', () => {
   assert.ok(validateState(null).length > 0);
   assert.ok(validateState({ ...createInitialState(), notes: {} }).includes('diário inválido'));
 });
+
+test('snapshot copia o que está gravado para outra chave', () => {
+  const storage = fakeStorage();
+  const store = createStore({ storage, now: () => 42 });
+  assert.equal(store.snapshot('ritmo:pre-import:'), null, 'nada gravado ainda');
+  store.save(store.load().state);
+  assert.equal(store.snapshot('ritmo:pre-import:'), 'ritmo:pre-import:42');
+  assert.equal(storage.map.get('ritmo:pre-import:42'), storage.map.get(STORAGE_KEY));
+
+  const full = createStore({ storage: fakeStorage({ [STORAGE_KEY]: '{}' }, { failSetFor: () => true }) });
+  assert.equal(full.snapshot('x:'), null, 'sem espaço: devolve null sem lançar');
+});

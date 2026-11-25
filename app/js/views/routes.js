@@ -6,6 +6,7 @@ import { renderPainel } from './painel.js';
 import { renderCalendario } from './calendario.js';
 import { renderEvolucao } from './evolucao.js';
 import { renderDiario } from './diario.js';
+import { renderDados } from './dados.js';
 
 export const DEFAULT_ROUTE = 'painel';
 
@@ -34,6 +35,11 @@ export const routes = {
     title: 'Diário',
     label: 'Diário',
     render: renderDiario,
+  },
+  dados: {
+    title: 'Seus dados',
+    hidden: true,
+    render: renderDados,
   },
   sessao: {
     title: sessionTitle,
