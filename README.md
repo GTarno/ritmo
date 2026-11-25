@@ -40,6 +40,12 @@ Convenções:
 - Carga vazia é `null`, nunca `0` (zero é um valor válido).
 - Nunca commitar dados reais ou backups.
 
+## App instalável e offline
+
+- `app/sw.js` guarda todos os arquivos do app num cache com versão. **Ao criar um arquivo em `app/`, inclua-o em `ASSETS`** (um teste unitário confere).
+- A versão (`__VERSION__`) é trocada pelo commit no deploy e por um hash do conteúdo no `npm start`. Quando muda, o app mostra "Nova versão disponível" com o botão "Atualizar".
+- Ícones: `node scripts/generate-icons.js` gera os PNGs de `app/icons/` a partir do SVG do script.
+
 ## Publicação
 
 O workflow `.github/workflows/pages.yml` publica `app/` no GitHub Pages. Configuração única: **Settings → Pages → Source: GitHub Actions**.
