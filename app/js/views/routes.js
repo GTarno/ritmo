@@ -4,7 +4,7 @@ import { h } from '../ui/dom.js';
 import { emptyState } from '../ui/empty-state.js';
 import { renderTreino } from './treino.js';
 import { renderSessao, sessionTitle } from './sessao.js';
-import { todayCard } from './today-card.js';
+import { renderPainel } from './painel.js';
 import { renderCalendario } from './calendario.js';
 
 export const DEFAULT_ROUTE = 'painel';
@@ -17,15 +17,7 @@ export const routes = {
   painel: {
     title: 'Visão geral',
     label: 'Início',
-    render: () =>
-      screen(
-        'Visão geral',
-        todayCard(),
-        emptyState({
-          title: 'Resumo da semana em breve',
-          text: 'Frequência, último peso e histórico recente aparecem aqui (issue #10).',
-        }),
-      ),
+    render: renderPainel,
   },
   treino: {
     title: 'Treino AB',

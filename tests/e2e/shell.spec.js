@@ -63,8 +63,7 @@ test.describe('teclado e foco', () => {
 
 test.describe('estados vazios', () => {
   test('telas ainda sem dados explicam o que vai aparecer ali', async ({ page }) => {
-    // Treino AB já começa com os modelos preenchidos e a Agenda mostra o calendário
-    for (const [route] of ROUTES.filter(([r]) => !['treino', 'calendario'].includes(r))) {
+    for (const [route] of ROUTES.filter(([r]) => ['evolucao', 'diario'].includes(r))) {
       await page.goto(`./#${route}`);
       await expect(page.locator('#app .empty-state')).toBeVisible();
     }
