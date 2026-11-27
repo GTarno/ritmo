@@ -42,7 +42,7 @@ test('editar exercício: salva, mantém o id, registra no diário e persiste', a
   await expect(page.getByRole('button', { name: 'Editar Supino reto' })).toBeFocused();
 
   const data = await stored(page);
-  expect(data.plans.A.exercises[0]).toMatchObject({ id: 'a-supino-maquina', name: 'Supino reto', load: 12.5, sets: 3 });
+  expect(data.plans[0].exercises[0]).toMatchObject({ id: 'a-supino-maquina', name: 'Supino reto', load: 12.5, sets: 3 });
   expect(data.notes).toHaveLength(1);
   expect(data.notes[0]).toMatchObject({ category: 'ajuste', plan: 'A' });
   expect(data.notes[0].text).toContain('Motivo: Ficou leve');
@@ -108,7 +108,7 @@ test('adicionar exercício', async ({ page }) => {
   await expect(list(page).getByRole('listitem').last()).toContainText('Abdutora');
   await expect(list(page).getByRole('listitem').last()).toContainText('0 kg');
   const data = await stored(page);
-  expect(data.plans.B.exercises.at(-1)).toMatchObject({ name: 'Abdutora', load: 0, sets: 2, rest: 75 });
+  expect(data.plans[1].exercises.at(-1)).toMatchObject({ name: 'Abdutora', load: 0, sets: 2, rest: 75 });
   expect(data.notes[0].change.action).toBe('add');
 });
 
@@ -138,7 +138,7 @@ test('reordenar com os botões de mover mantém o foco', async ({ page }) => {
   await expect(page.getByRole('button', { name: 'Mover Remada sentada para baixo' })).toBeFocused();
 
   const data = await stored(page);
-  expect(data.plans.A.exercises.map((e) => e.id).slice(0, 2)).toEqual(['a-remada-sentada', 'a-supino-maquina']);
+  expect(data.plans[0].exercises.map((e) => e.id).slice(0, 2)).toEqual(['a-remada-sentada', 'a-supino-maquina']);
   expect(data.notes).toHaveLength(0);
 });
 
@@ -149,7 +149,7 @@ test('editar cardio', async ({ page }) => {
   await dialog.getByRole('button', { name: 'Salvar' }).click();
   await expect(page.getByText('15 min de bicicleta')).toBeVisible();
   const data = await stored(page);
-  expect(data.plans.A.cardio).toBe('15 min de bicicleta');
+  expect(data.plans[0].cardio).toBe('15 min de bicicleta');
   expect(data.notes[0].change).toMatchObject({ action: 'cardio', before: '10 min de caminhada leve' });
 });
 

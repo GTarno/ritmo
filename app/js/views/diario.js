@@ -19,6 +19,7 @@ import {
   removeNote,
   listNotes,
 } from '../domain/journal.js';
+import { planIds } from '../domain/models.js';
 
 // Filtros lembrados enquanto o app está aberto.
 const filters = { category: '', plan: '' };
@@ -74,7 +75,7 @@ async function onAdd(rerender) {
   const value = await formDialog({
     title: 'Novo registro',
     content: noteFields(),
-    onSubmit: (values) => parseNoteForm(values, app.today()),
+    onSubmit: (values) => parseNoteForm(values, app.today(), planIds(app.state)),
   });
   if (!value) return rerender('[data-action="add"]');
   const { state, note } = addNote(app.state, value, app.ctx());
@@ -91,7 +92,7 @@ async function onEdit(note, rerender) {
   const value = await formDialog({
     title: 'Editar registro',
     content: noteFields(note),
-    onSubmit: (values) => parseNoteForm(values, app.today()),
+    onSubmit: (values) => parseNoteForm(values, app.today(), [...planIds(app.state), note.plan].filter(Boolean)),
   });
   if (!value) return rerender(`[data-note="${note.id}"] [data-action="edit"]`);
   if (app.commit(updateNote(app.state, note.id, value))) showStatus('Registro atualizado.');

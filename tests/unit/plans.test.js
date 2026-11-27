@@ -67,7 +67,7 @@ test('parseExerciseForm aponta erros por campo', () => {
 
 test('updateExercise mantém o id ao renomear e registra antes/depois no diário', () => {
   const s0 = frozenState();
-  const before = s0.plans.A.exercises[0];
+  const before = s0.plans[0].exercises[0];
   const { state, changed } = updateExercise(
     s0,
     'A',
@@ -77,7 +77,7 @@ test('updateExercise mantém o id ao renomear e registra antes/depois no diário
     makeCtx(),
   );
   assert.equal(changed, true);
-  const after = state.plans.A.exercises[0];
+  const after = state.plans[0].exercises[0];
   assert.equal(after.id, supinoId);
   assert.equal(after.name, 'Supino reto');
   assert.equal(after.load, 12);
@@ -98,20 +98,20 @@ test('updateExercise mantém o id ao renomear e registra antes/depois no diário
   assert.match(note.text, /Motivo: Ficou leve/);
 
   // Estado original intacto (congelado) e modelo B não foi tocado
-  assert.equal(s0.plans.A.exercises[0].name, 'Supino na máquina');
-  assert.equal(state.plans.B, s0.plans.B);
+  assert.equal(s0.plans[0].exercises[0].name, 'Supino na máquina');
+  assert.equal(state.plans[1], s0.plans[1]);
 });
 
 test('updateExercise sem mudança e sem motivo não gera registro', () => {
   const s0 = frozenState();
-  const r = updateExercise(s0, 'A', supinoId, { ...s0.plans.A.exercises[0] }, '  ', makeCtx());
+  const r = updateExercise(s0, 'A', supinoId, { ...s0.plans[0].exercises[0] }, '  ', makeCtx());
   assert.equal(r.changed, false);
   assert.equal(r.state, s0);
 });
 
 test('updateExercise só com motivo gera registro', () => {
   const s0 = frozenState();
-  const r = updateExercise(s0, 'A', supinoId, { ...s0.plans.A.exercises[0] }, 'Dor no ombro', makeCtx());
+  const r = updateExercise(s0, 'A', supinoId, { ...s0.plans[0].exercises[0] }, 'Dor no ombro', makeCtx());
   assert.equal(r.changed, true);
   assert.equal(r.state.notes.length, 1);
   assert.match(r.state.notes[0].text, /Dor no ombro/);
@@ -119,11 +119,11 @@ test('updateExercise só com motivo gera registro', () => {
 
 test('editar o modelo não altera sessões já iniciadas', () => {
   const base = createInitialState();
-  const sessionCopy = structuredClone(base.plans.A.exercises).map((e) => ({ ...e, checked: true, load: 10 }));
-  base.sessions['2026-11-23'] = { date: '2026-11-23', type: 'A', done: true, exercises: sessionCopy, cardio: base.plans.A.cardio };
+  const sessionCopy = structuredClone(base.plans[0].exercises).map((e) => ({ ...e, checked: true, load: 10 }));
+  base.sessions['2026-11-23'] = { date: '2026-11-23', type: 'A', done: true, exercises: sessionCopy, cardio: base.plans[0].cardio };
   const s0 = deepFreeze(base);
 
-  let { state } = updateExercise(s0, 'A', supinoId, { ...s0.plans.A.exercises[0], load: 14 }, '', makeCtx());
+  let { state } = updateExercise(s0, 'A', supinoId, { ...s0.plans[0].exercises[0], load: 14 }, '', makeCtx());
   ({ state } = removeExercise(state, 'A', 'a-prancha', '', makeCtx()));
   ({ state } = updateCardio(state, 'A', '20 min de bicicleta', '', makeCtx()));
 
@@ -137,8 +137,8 @@ test('addExercise adiciona no fim com id novo e registra no diário', () => {
   const s0 = frozenState();
   const fields = { name: 'Abdominal', sets: 3, reps: '15', load: null, rest: 45 };
   const { state, exercise } = addExercise(s0, 'B', fields, '', makeCtx());
-  assert.equal(state.plans.B.exercises.length, 6);
-  assert.deepEqual(state.plans.B.exercises.at(-1), exercise);
+  assert.equal(state.plans[1].exercises.length, 6);
+  assert.deepEqual(state.plans[1].exercises.at(-1), exercise);
   assert.equal(exercise.id, 'id-1');
   assert.equal(state.notes[0].change.action, 'add');
   assert.equal(state.notes[0].plan, 'B');
@@ -148,8 +148,8 @@ test('addExercise adiciona no fim com id novo e registra no diário', () => {
 test('removeExercise tira do modelo e registra no diário', () => {
   const s0 = frozenState();
   const { state } = removeExercise(s0, 'A', supinoId, 'Máquina quebrada', makeCtx());
-  assert.equal(state.plans.A.exercises.length, 4);
-  assert.ok(!state.plans.A.exercises.some((e) => e.id === supinoId));
+  assert.equal(state.plans[0].exercises.length, 4);
+  assert.ok(!state.plans[0].exercises.some((e) => e.id === supinoId));
   assert.equal(state.notes[0].change.action, 'remove');
   assert.equal(state.notes[0].change.before.name, 'Supino na máquina');
   assert.match(state.notes[0].text, /Máquina quebrada/);
@@ -157,7 +157,7 @@ test('removeExercise tira do modelo e registra no diário', () => {
 
 test('moveExercise troca posições e respeita os limites', () => {
   const s0 = frozenState();
-  const ids = (s) => s.plans.A.exercises.map((e) => e.id);
+  const ids = (s) => s.plans[0].exercises.map((e) => e.id);
   const down = moveExercise(s0, 'A', supinoId, 1);
   assert.equal(down.moved, true);
   assert.deepEqual(ids(down.state).slice(0, 2), ['a-remada-sentada', supinoId]);
@@ -173,12 +173,12 @@ test('updateCardio registra antes/depois; vazio = sem cardio', () => {
   const s0 = frozenState();
   const r = updateCardio(s0, 'A', '  15 min de bicicleta ', '', makeCtx());
   assert.equal(r.changed, true);
-  assert.equal(r.state.plans.A.cardio, '15 min de bicicleta');
+  assert.equal(r.state.plans[0].cardio, '15 min de bicicleta');
   assert.equal(r.state.notes[0].change.before, '10 min de caminhada leve');
   assert.equal(r.state.notes[0].change.after, '15 min de bicicleta');
 
   const none = updateCardio(s0, 'B', '', '', makeCtx());
-  assert.equal(none.state.plans.B.cardio, '');
+  assert.equal(none.state.plans[1].cardio, '');
   assert.match(none.state.notes[0].text, /→ sem cardio/);
 
   const same = updateCardio(s0, 'A', '10 min de caminhada leve', '', makeCtx());

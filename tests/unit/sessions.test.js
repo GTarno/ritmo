@@ -90,7 +90,7 @@ test('scheduleSession agenda e troca o modelo; não troca sessão iniciada', () 
 
 test('openSession copia o modelo vigente com checked=false e carga planejada', () => {
   const base = createInitialState();
-  base.plans.A.exercises[0].load = 12;
+  base.plans[0].exercises[0].load = 12;
   const s0 = deepFreeze(base);
   const { state, session, opened: wasOpened } = openSession(s0, TODAY, 'A', TODAY);
   assert.equal(wasOpened, true);
@@ -138,7 +138,7 @@ test('sessão aberta é independente do modelo (editar modelo depois não muda a
     state,
     'A',
     'a-supino-maquina',
-    { ...state.plans.A.exercises[0], name: 'Outro', load: 99 },
+    { ...state.plans[0].exercises[0], name: 'Outro', load: 99 },
     '',
     ctx,
   );

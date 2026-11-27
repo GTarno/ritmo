@@ -31,7 +31,7 @@ test('nome do arquivo e conteúdo do backup', () => {
   const text = buildBackup(state, new Date('2026-11-24T21:00:00Z'));
   const parsed = JSON.parse(text);
   assert.equal(parsed.app, 'ritmo');
-  assert.equal(parsed.schemaVersion, 1);
+  assert.equal(parsed.schemaVersion, 2);
   assert.equal(parsed.exportedAt, '2026-11-24T21:00:00.000Z');
   assert.deepEqual(parsed.data, state);
 });

@@ -2,7 +2,7 @@
 // Registros manuais e ajustes gerados pelo Treino AB (auto: true, com `change`)
 // ficam na mesma lista, state.notes.
 import { isValidDate } from '../dates.js';
-import { PLAN_TYPES, parseInteger } from './plans.js';
+import { parseInteger } from './plans.js';
 
 export const CATEGORIES = [
   { key: 'observacao', label: 'Observação' },
@@ -17,10 +17,11 @@ export const INTENSITY_MAX = 10;
 export const categoryLabel = (key) => CATEGORIES.find((c) => c.key === key)?.label ?? 'Registro';
 
 /**
- * Converte e valida o formulário (campos em texto).
+ * Converte e valida o formulário (campos em texto). `planIds`: modelos que
+ * podem ser vinculados (os existentes; registros antigos mantêm o vínculo).
  * @returns {{ value: { category, date, text, plan, intensity } } | { errors }}
  */
-export function parseNoteForm(form, today) {
+export function parseNoteForm(form, today, planIds = ['A', 'B']) {
   const errors = {};
   const category = String(form.category ?? '');
   const date = String(form.date ?? '').trim();
@@ -33,7 +34,7 @@ export function parseNoteForm(form, today) {
   else if (date > today) errors.date = 'A data não pode ser no futuro.';
   if (!text) errors.text = 'Descreva o que aconteceu.';
   else if (text.length > TEXT_MAX) errors.text = `Use até ${TEXT_MAX} caracteres.`;
-  if (plan && !PLAN_TYPES.includes(plan)) errors.plan = 'Escolha A, B ou nenhum.';
+  if (plan && !planIds.includes(plan)) errors.plan = 'Escolha um treino da lista ou nenhum.';
   if (Number.isNaN(intensity) || (intensity !== null && (intensity < INTENSITY_MIN || intensity > INTENSITY_MAX))) {
     errors.intensity = `Use um número inteiro de ${INTENSITY_MIN} a ${INTENSITY_MAX}, ou deixe em branco.`;
   }

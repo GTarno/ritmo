@@ -52,7 +52,7 @@ test('addNote, updateNote e removeNote', () => {
 
 test('editar ajuste automático preserva os dados da alteração', () => {
   const s0 = createInitialState();
-  const ex = s0.plans.A.exercises[0];
+  const ex = s0.plans[0].exercises[0];
   const { state } = updateExercise(s0, 'A', ex.id, { ...ex, load: 12 }, '', ctx());
   const auto = state.notes[0];
   const edited = updateNote(state, auto.id, parseNoteForm(form({ category: 'ajuste', text: 'Subi a carga', plan: 'A' }), TODAY).value);
