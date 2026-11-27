@@ -775,3 +775,5 @@ input[type="checkbox"], input[type="radio"] {
 .week-strip { grid-template-columns: repeat(7, minmax(0, 1fr)); }
 .toast-action { min-height: 36px; padding: 0 var(--space-3); background: var(--color-bg); color: var(--color-text); border: 0; }
 .install-steps { padding: var(--space-3); border-radius: var(--radius-sm); background: var(--color-surface-2); }
+.protection-ok strong { color: var(--color-success); }
+.protection-warn strong { color: var(--color-danger); }
