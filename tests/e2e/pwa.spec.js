@@ -46,7 +46,7 @@ test('sem internet: o app abre e registra uma sessão completa', async ({ page, 
 
   // Todas as telas abrem offline
   for (const [route, title] of [
-    ['treino', 'Treino AB'],
+    ['treino', 'Treinos'],
     ['calendario', 'Calendário'],
     ['evolucao', 'Evolução'],
     ['diario', 'Diário'],

@@ -16,7 +16,7 @@ test('mostra o treino A com os 5 exercícios iniciais e o cardio', async ({ page
 });
 
 test('alterna entre os treinos A e B', async ({ page }) => {
-  const b = page.getByRole('button', { name: 'Treino B' });
+  const b = page.getByRole('button', { name: 'Treino B', exact: true });
   await b.click();
   await expect(b).toHaveAttribute('aria-pressed', 'true');
   await expect(page.getByRole('heading', { name: 'Treino B — Inferiores' })).toBeVisible();
@@ -97,7 +97,7 @@ test('salvar sem mudanças avisa e não registra no diário', async ({ page }) =
 });
 
 test('adicionar exercício', async ({ page }) => {
-  await page.getByRole('button', { name: 'Treino B' }).click();
+  await page.getByRole('button', { name: 'Treino B', exact: true }).click();
   await page.getByRole('button', { name: 'Adicionar exercício' }).click();
   const dialog = page.getByRole('dialog', { name: 'Novo exercício no treino B' });
   await dialog.getByLabel('Nome').fill('Abdutora');

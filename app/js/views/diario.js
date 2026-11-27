@@ -1,5 +1,5 @@
 // Tela "Diário": observações, dores, limitações e ajustes. Os ajustes feitos no
-// Treino AB entram aqui sozinhos e podem ser complementados como os demais.
+// na aba Treinos entram aqui sozinhos e podem ser complementados como os demais.
 import { app } from '../app-state.js';
 import { h, icon, ICONS } from '../ui/dom.js';
 import { field, selectField } from '../ui/form.js';
@@ -224,7 +224,7 @@ export function renderDiario() {
             })
           : emptyState({
               title: 'Diário vazio',
-              text: 'Anote como se sentiu, dores, limitações e ajustes do treino. Ajustes feitos no Treino AB aparecem aqui sozinhos.',
+              text: 'Anote como se sentiu, dores, limitações e ajustes do treino. Ajustes feitos na aba Treinos aparecem aqui sozinhos.',
             }),
     );
     if (focusSelector) body.querySelector(focusSelector)?.focus();

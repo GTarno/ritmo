@@ -64,6 +64,7 @@ export function formValues(form) {
 export function showErrors(form, errors = {}) {
   let first = null;
   for (const control of form.querySelectorAll('input, textarea, select')) {
+    if (control.type === 'radio' && first?.name === control.name) continue;
     const message = errors[control.name];
     const errorEl = control.dataset.errorId && form.querySelector(`#${CSS.escape(control.dataset.errorId)}`);
     if (errorEl) errorEl.textContent = message ?? '';
@@ -94,6 +95,37 @@ export function selectField({ label, name, options, value = '', hint, required =
       'select',
       { id, name, required, 'aria-describedby': [hintId, errorId].filter(Boolean).join(' '), dataset: { errorId } },
       options.map((o) => h('option', { value: o.value, selected: o.value === value }, o.label)),
+    ),
+    hint && h('p', { class: 'hint', id: hintId }, hint),
+    h('p', { class: 'error', id: errorId }),
+  );
+}
+
+/**
+ * Escolha de cor como grupo de opções (radio), com amostra e nome por extenso:
+ * a cor nunca é a única informação.
+ * @param {{ label: string, name: string, options: Array<{ value: string, label: string }>, value?: string, hint?: string }} o
+ */
+export function colorField({ label, name, options, value = '', hint }) {
+  const id = `f-${name}-${++counter}`;
+  const hintId = hint ? `${id}-hint` : null;
+  const errorId = `${id}-error`;
+  return h(
+    'fieldset',
+    { class: 'field color-field', 'aria-describedby': [hintId, errorId].filter(Boolean).join(' ') },
+    h('legend', {}, label),
+    h(
+      'div',
+      { class: 'color-options' },
+      options.map((o) =>
+        h(
+          'label',
+          { class: 'color-option' },
+          h('input', { type: 'radio', name, value: o.value, checked: o.value === value, dataset: { errorId } }),
+          h('span', { class: 'swatch', 'aria-hidden': 'true', style: `--swatch: var(--plan-${o.value})` }),
+          h('span', {}, o.label),
+        ),
+      ),
     ),
     hint && h('p', { class: 'hint', id: hintId }, hint),
     h('p', { class: 'error', id: errorId }),

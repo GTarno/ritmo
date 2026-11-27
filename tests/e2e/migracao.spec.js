@@ -47,7 +47,7 @@ test('quem já usa o app encontra tudo igual depois da atualização do formato'
   await page.goto('./#treino');
   await expect(page.getByRole('heading', { name: 'Treino A — Superiores e core' })).toBeVisible();
   await expect(page.getByRole('list', { name: 'Exercícios do treino A' }).getByRole('listitem').first()).toContainText('12 kg');
-  await page.getByRole('button', { name: 'Treino B' }).click();
+  await page.getByRole('button', { name: 'Treino B', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Treino B — Pernas' })).toBeVisible();
 
   // Sessão concluída e agendamento
