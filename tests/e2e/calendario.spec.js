@@ -7,6 +7,9 @@ const stored = (page) => page.evaluate(() => JSON.parse(localStorage.getItem('ri
 const weekList = (page) => page.getByRole('list', { name: /Dias da semana/ });
 const day = (page, date) => page.locator(`a[data-date="${date}"]`);
 
+/** Nome acessível tolerante a espaços antes da pontuação (o texto oculto conta como bloco). */
+const named = (text) => new RegExp(`^${text.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&').replace(/([,:])/g, '\\s*$1')}$`);
+
 test.beforeEach(async ({ page }) => {
   await page.clock.setFixedTime(NOW);
   await page.goto('./#calendario');
@@ -15,8 +18,8 @@ test.beforeEach(async ({ page }) => {
 test('abre na semana atual, de segunda a domingo, com hoje destacado', async ({ page }) => {
   await expect(page.getByRole('heading', { name: '23 – 29 de novembro de 2026' })).toBeVisible();
   await expect(weekList(page).getByRole('link')).toHaveCount(7);
-  await expect(weekList(page).getByRole('link').first()).toHaveAttribute('aria-label', 'segunda-feira, 23 de novembro: Livre');
-  await expect(day(page, '2026-11-24')).toHaveAttribute('aria-label', /^Hoje, terça-feira/);
+  await expect(weekList(page).getByRole('link').first()).toHaveAccessibleName(named('segunda, 23/11: Livre'));
+  await expect(day(page, '2026-11-24')).toHaveAccessibleName(/^terça\s*,\s*Hoje · 24\/11\s*:/);
   await expect(page.getByText('0 de 4 treinos concluídos')).toBeVisible();
   await expect(page.getByRole('button', { name: 'Ir para hoje' })).toBeDisabled();
 });
@@ -76,9 +79,9 @@ test('planejar semana: prévia, criação e preservação das sessões existente
 
   await expect(page.locator('#status')).toContainText('3 sessões agendadas. 1 dia já tinha sessão e ficou como estava.');
   await expect(page.getByRole('heading', { name: '30 de novembro – 6 de dezembro de 2026' })).toBeVisible();
-  await expect(day(page, '2026-11-30')).toHaveAttribute('aria-label', /Treino A · planejado/);
-  await expect(day(page, '2026-12-02')).toHaveAttribute('aria-label', /Livre/);
-  await expect(day(page, '2026-12-03')).toHaveAttribute('aria-label', /Treino B · planejado/);
+  await expect(day(page, '2026-11-30')).toHaveAccessibleName(named('segunda, 30/11: Treino A planejado'));
+  await expect(day(page, '2026-12-02')).toHaveAccessibleName(/Livre$/);
+  await expect(day(page, '2026-12-03')).toHaveAccessibleName(/Treino B planejado$/);
 
   const data = await stored(page);
   expect(Object.keys(data.sessions).sort()).toEqual(['2026-11-30', '2026-12-01', '2026-12-03', '2026-12-04']);
@@ -108,12 +111,13 @@ test('sessão concluída aparece no calendário e conta na semana', async ({ pag
   await expect(page.locator('.badge')).toHaveText('Concluída');
 
   await page.goto('./#calendario');
-  await expect(day(page, '2026-11-23')).toHaveAttribute('aria-label', 'segunda-feira, 23 de novembro: Treino A · concluído');
+  await expect(day(page, '2026-11-23')).toHaveAccessibleName(named('segunda, 23/11: Treino A concluído'));
   await expect(day(page, '2026-11-23')).toHaveAttribute('data-status', 'done');
   await expect(page.getByText('1 de 4 treinos concluídos')).toBeVisible();
 
   await page.getByRole('button', { name: 'Mês', exact: true }).click();
-  await expect(day(page, '2026-11-23').locator('.type-chip')).toHaveText('A');
+  await expect(day(page, '2026-11-23').locator('.type-chip')).toHaveText('Treino A');
+  await expect(day(page, '2026-11-23')).toHaveAccessibleName(named('23 de novembro, segunda-feira: Treino A concluído'));
 });
 
 test('sem rolagem horizontal em 360px nas duas visões', async ({ page }) => {

@@ -74,3 +74,10 @@ export const ICONS = {
   baixar: ['M12 4v11', 'M7 10l5 5 5-5', 'M5 20h14'],
   dados: ['M12 3c4.4 0 8 1.3 8 3s-3.6 3-8 3-8-1.3-8-3 3.6-3 8-3z', 'M4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6', 'M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6'],
 };
+
+/**
+ * Texto só para leitores de tela (invisível na tela). Use para completar o
+ * texto visível de um link ou botão, em vez de aria-label: assim o nome
+ * acessível sempre contém o que está escrito na tela (WCAG 2.5.3).
+ */
+export const srOnly = (text) => h('span', { class: 'visually-hidden' }, text);

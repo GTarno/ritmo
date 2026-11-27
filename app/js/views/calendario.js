@@ -1,6 +1,6 @@
 // Tela "Calendário": visão semanal e mensal, abrir sessão por data e planejar semana.
 import { app } from '../app-state.js';
-import { h, icon, ICONS } from '../ui/dom.js';
+import { h, icon, ICONS, srOnly } from '../ui/dom.js';
 import { field } from '../ui/form.js';
 import { formDialog } from '../ui/dialog.js';
 import { showStatus } from '../ui/status.js';
@@ -13,9 +13,10 @@ import {
   isSameMonth,
   isValidDate,
   formatShort,
-  formatLong,
   formatMonthYear,
   formatWeekRange,
+  formatDayMonth,
+  weekdayLong,
   weekdayShort,
   weekdayIndex,
 } from '../dates.js';
@@ -39,10 +40,8 @@ function describe(summary) {
   return `Treino ${summary.type} · ${STATUS_TEXT[summary.status]}`;
 }
 
-function dayLabel(date, today, summary) {
-  const prefix = date === today ? 'Hoje, ' : '';
-  return `${prefix}${formatLong(date)}: ${describe(summary)}`;
-}
+/** Bolinha A/B com "treino" para leitores de tela. */
+const typeChip = (type) => h('span', { class: 'type-chip' }, srOnly('Treino '), type);
 
 // ---------- Planejar semana ----------
 
@@ -131,15 +130,14 @@ function weekView(anchor, today) {
             href: `#sessao/${date}`,
             class: ['day-row', date === today && 'is-today'],
             dataset: { date, status: s.status },
-            'aria-label': dayLabel(date, today, s),
           },
           h(
             'span',
             { class: 'day-name' },
-            h('span', { class: 'weekday' }, WEEKDAY_NAMES[weekdayIndex(date)]),
-            h('span', { class: 'muted' }, date === today ? `Hoje · ${formatShort(date)}` : formatShort(date)),
+            h('span', { class: 'weekday' }, WEEKDAY_NAMES[weekdayIndex(date)], srOnly(',')),
+            h('span', { class: 'muted' }, date === today ? `Hoje · ${formatShort(date)}` : formatShort(date), srOnly(':')),
           ),
-          h('span', { class: 'day-status' }, s.status !== 'none' && h('span', { class: 'type-chip' }, s.type), describe(s).replace(/^Treino . · /, '')),
+          h('span', { class: 'day-status' }, s.status !== 'none' && typeChip(s.type), s.status !== 'none' && srOnly(' '), describe(s).replace(/^Treino . · /, '')),
         ),
       );
     }),
@@ -179,10 +177,10 @@ function monthView(anchor, today) {
                   href: `#sessao/${date}`,
                   class: ['day-cell', date === today && 'is-today'],
                   dataset: { date, status: s.status },
-                  'aria-label': dayLabel(date, today, s),
                 },
                 h('span', { class: 'day-number' }, String(Number(date.slice(8)))),
-                s.status !== 'none' && h('span', { class: 'type-chip' }, s.type),
+                srOnly(`${formatDayMonth(date).replace(/^\d+/, '')}, ${weekdayLong(date)}${date === today ? ', hoje' : ''}`),
+                s.status !== 'none' && [srOnly(': '), typeChip(s.type), srOnly(` ${STATUS_TEXT[s.status]}`)],
               ),
             );
           }),

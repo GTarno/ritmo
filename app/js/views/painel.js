@@ -1,12 +1,12 @@
 // Tela "Visão geral": objetivo e meta, treino de hoje, semana atual,
 // números gerais, histórico recente e orientação de adaptação.
 import { app } from '../app-state.js';
-import { h, icon, ICONS } from '../ui/dom.js';
+import { h, icon, ICONS, srOnly } from '../ui/dom.js';
 import { field } from '../ui/form.js';
 import { formDialog } from '../ui/dialog.js';
 import { showStatus } from '../ui/status.js';
 import { emptyState } from '../ui/empty-state.js';
-import { formatShort, formatLong, weekdayShort } from '../dates.js';
+import { formatShort, weekdayShort } from '../dates.js';
 import { backupReminder } from '../domain/backup.js';
 import { formatNumber } from '../domain/plans.js';
 import { getSession, sessionStatus, suggestedType, progressLabel } from '../domain/sessions.js';
@@ -142,10 +142,12 @@ function weekCard(today) {
               href: `#sessao/${d.date}`,
               class: ['strip-day', d.date === today && 'is-today'],
               dataset: { status: d.status },
-              'aria-label': `${d.date === today ? 'Hoje, ' : ''}${formatLong(d.date)}: ${d.status === 'none' ? 'livre' : `treino ${d.type} ${STATUS_TEXT[d.status]}`}`,
             },
             h('span', { class: 'strip-weekday' }, weekdayShort(d.date)),
-            d.status === 'none' ? h('span', { class: 'strip-empty' }, '·') : h('span', { class: 'type-chip' }, d.type),
+            srOnly(` ${formatShort(d.date)}${d.date === today ? ', hoje' : ''}: `),
+            d.status === 'none'
+              ? [h('span', { class: 'strip-empty', 'aria-hidden': 'true' }, '·'), srOnly('livre')]
+              : [h('span', { class: 'type-chip' }, srOnly('treino '), d.type), srOnly(` ${STATUS_TEXT[d.status]}`)],
           ),
         ),
       ),

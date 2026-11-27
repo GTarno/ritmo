@@ -3,6 +3,7 @@
 Diário pessoal de academia em português do Brasil: planejar a semana, registrar treinos, acompanhar cargas, medidas e frequência. Aplicação estática, dados salvos só no navegador.
 
 - **Plano de desenvolvimento:** [docs/PLANO.md](docs/PLANO.md)
+- **Roteiro de teste no celular:** [docs/CHECKLIST-CELULAR.md](docs/CHECKLIST-CELULAR.md)
 - **Site:** https://gtarno.github.io/ritmo/ (publicado automaticamente a cada push na `main`)
 
 ## Rodar localmente
@@ -18,7 +19,11 @@ npx playwright install chromium      # uma vez, para os testes e2e
 npm run test:e2e                     # testes no navegador (desktop e celular)
 ```
 
-O CI (`.github/workflows/ci.yml`) roda sintaxe, testes unitários e e2e em todo pull request.
+O CI (`.github/workflows/ci.yml`) roda em todo pull request:
+- sintaxe e testes unitários;
+- e2e no Chromium (desktop e celular), incluindo a varredura de acessibilidade com axe-core;
+- e2e no WebKit, o motor do Safari, com perfil de iPhone (`WEBKIT=1 npm run test:e2e -- --project=iphone`, depois de `npx playwright install webkit`);
+- Lighthouse, exigindo pelo menos 90 em acessibilidade e boas práticas.
 
 ## Organização do código
 
