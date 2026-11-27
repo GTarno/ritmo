@@ -4,7 +4,9 @@
 // celular pode bloquear a tela no meio do treino). Uma sessão concluída só é
 // gravada ao tocar em "Salvar alterações", para não ficar inválida no meio da edição.
 import { app } from '../app-state.js';
-import { h } from '../ui/dom.js';
+import { h, icon, ICONS } from '../ui/dom.js';
+import { startRest } from '../ui/rest-timer.js';
+import { restFor, formatClock } from '../domain/timer.js';
 import { field } from '../ui/form.js';
 import { confirmDialog } from '../ui/dialog.js';
 import { showStatus } from '../ui/status.js';
@@ -133,7 +135,23 @@ function lastLoadHint(exId, date) {
   return last ? `Última: ${formatNumber(last.load)} kg em ${formatShort(last.date)}` : null;
 }
 
-function exerciseRow(ex, date, onChange) {
+function restButton(ex) {
+  const seconds = restFor(ex);
+  return h(
+    'button',
+    {
+      type: 'button',
+      class: 'btn btn-rest',
+      dataset: { action: 'rest' },
+      'aria-describedby': `chk-${ex.id}-label`,
+      onclick: () => startRest(seconds, ex.name),
+    },
+    icon(ICONS.relogio, { size: 18 }),
+    `Descansar ${formatClock(seconds)}`,
+  );
+}
+
+function exerciseRow(ex, date, onChange, { resting = true } = {}) {
   const checkId = `chk-${ex.id}`;
   const loadId = `load-${ex.id}`;
   const hintId = `${loadId}-hint`;
@@ -164,7 +182,7 @@ function exerciseRow(ex, date, onChange) {
           onChange();
         },
       }),
-      h('label', { for: checkId }, ex.name),
+      h('label', { for: checkId, id: `${checkId}-label` }, ex.name),
     ),
     h('p', { class: 'muted planned', id: `${checkId}-desc` }, planned),
     h(
@@ -188,6 +206,7 @@ function exerciseRow(ex, date, onChange) {
       hint && h('p', { class: 'hint', id: hintId }, hint),
       h('p', { class: 'error', id: errorId }),
     ),
+    resting && restButton(ex),
   );
 }
 
@@ -288,7 +307,7 @@ function openedView(date, rerender) {
       ? h(
           'ol',
           { class: 'session-exercises', 'aria-label': 'Exercícios da sessão' },
-          session.exercises.map((ex) => exerciseRow(ex, date, autosave)),
+          session.exercises.map((ex) => exerciseRow(ex, date, autosave, { resting: !done })),
         )
       : emptyState({ title: 'Este modelo não tinha exercícios', text: 'Registre o cardio ou observações.' }),
     h(
