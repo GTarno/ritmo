@@ -74,15 +74,29 @@ export function setupPwa() {
     window.location.reload();
   });
 
+  // Uma versão instalada esperando para assumir:
+  // - se esta página foi aberta por uma versão anterior do service worker, os
+  //   arquivos em uso são os antigos: pergunta antes de trocar (sem recarregar
+  //   no meio de um treino);
+  // - se a página abriu sem service worker (primeira visita), ela já roda os
+  //   arquivos atuais da rede: a versão em espera assume em silêncio. Isso
+  //   evita um "Nova versão disponível" falso quando a página é recarregada
+  //   durante a primeira instalação (o Safari instala uma segunda vez).
+  const handleWaiting = (worker) => {
+    if (hadController) offerUpdate(worker);
+    else worker.postMessage('SKIP_WAITING');
+  };
+
   navigator.serviceWorker
     .register('sw.js')
     .then((registration) => {
-      // Versão nova já baixada e esperando (ex.: aba aberta durante um deploy).
-      if (registration.waiting && navigator.serviceWorker.controller) offerUpdate(registration.waiting);
+      // Versão já baixada e esperando (ex.: aba aberta durante um deploy).
+      if (registration.waiting) handleWaiting(registration.waiting);
       registration.addEventListener('updatefound', () => {
         const worker = registration.installing;
         worker?.addEventListener('statechange', () => {
-          if (worker.state === 'installed' && navigator.serviceWorker.controller) offerUpdate(worker);
+          // Com algum service worker ativo, a versão instalada fica esperando.
+          if (worker.state === 'installed' && navigator.serviceWorker.controller) handleWaiting(worker);
         });
       });
     })
