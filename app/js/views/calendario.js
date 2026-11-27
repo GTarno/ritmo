@@ -20,7 +20,9 @@ import {
   weekdayShort,
   weekdayIndex,
 } from '../dates.js';
-import { daySummary, previewWeekPlan, planWeek, countDone } from '../domain/calendar.js';
+import { daySummary, previewWeekPlan, planWeek, countDone, weekTemplateSummary } from '../domain/calendar.js';
+import { listPlans, planDisplay } from '../domain/models.js';
+import { planChip, planColorStyle, planShort } from '../ui/plan-chip.js';
 
 // Visão e período lembrados enquanto o app está aberto.
 const view = { mode: 'semana', anchor: null };
@@ -34,14 +36,8 @@ const STATUS_TEXT = {
 const WEEKDAY_HEADERS = ['seg', 'ter', 'qua', 'qui', 'sex', 'sáb', 'dom'];
 const WEEKDAY_NAMES = ['segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado', 'domingo'];
 
-/** "Treino A · concluído" ou "Livre". */
-function describe(summary) {
-  if (summary.status === 'none') return 'Livre';
-  return `Treino ${summary.type} · ${STATUS_TEXT[summary.status]}`;
-}
-
-/** Bolinha A/B com "treino" para leitores de tela. */
-const typeChip = (type) => h('span', { class: 'type-chip' }, srOnly('Treino '), type);
+/** Bolinha do modelo da sessão do dia (rótulo e cor; guardados na sessão se o modelo saiu). */
+const dayChip = (date, type) => planChip(app.state, type, { session: app.state.sessions[date] });
 
 // ---------- Planejar semana ----------
 
@@ -49,8 +45,8 @@ function previewList(date) {
   const items = previewWeekPlan(app.state, date, app.today());
   if (!items.length) return h('p', { class: 'muted' }, 'A semana padrão não tem dias de treino.');
   const text = {
-    create: (i) => `Treino ${i.type} — será agendado`,
-    exists: (i) => `já tem sessão (treino ${i.existing}); fica como está`,
+    create: (i) => `${planShort(app.state, i.type)} — será agendado`,
+    exists: (i) => `já tem sessão (treino ${planDisplay(app.state, i.existing, app.state.sessions[i.date]).label}); fica como está`,
     past: () => 'já passou; não será agendado',
   };
   return h(
@@ -66,6 +62,13 @@ function previewList(date) {
       ),
     ),
   );
+}
+
+/** "Semana padrão: seg A · ter B · qui A · sex B." a partir dos modelos atuais. */
+function templateText() {
+  const days = weekTemplateSummary(app.state);
+  if (!days.length) return 'A semana padrão não tem dias de treino.';
+  return `Semana padrão: ${days.map((d) => `${WEEKDAY_HEADERS[d.index]} ${d.label}`).join(' · ')}.`;
 }
 
 async function onPlanWeek(rerender) {
@@ -87,7 +90,7 @@ async function onPlanWeek(rerender) {
     title: 'Planejar semana',
     content: [
       dateField,
-      h('p', { class: 'muted' }, 'Semana padrão: seg A · ter B · qui A · sex B.'),
+      h('p', { class: 'muted' }, templateText()),
       preview,
     ],
     submitLabel: 'Planejar',
@@ -137,7 +140,15 @@ function weekView(anchor, today) {
             h('span', { class: 'weekday' }, WEEKDAY_NAMES[weekdayIndex(date)], srOnly(',')),
             h('span', { class: 'muted' }, date === today ? `Hoje · ${formatShort(date)}` : formatShort(date), srOnly(':')),
           ),
-          h('span', { class: 'day-status' }, s.status !== 'none' && typeChip(s.type), s.status !== 'none' && srOnly(' '), describe(s).replace(/^Treino . · /, '')),
+          s.status === 'none'
+            ? h('span', { class: 'day-status' }, 'Livre')
+            : h(
+                'span',
+                { class: 'day-status' },
+                dayChip(date, s.type),
+                srOnly(' — '),
+                h('span', { class: 'day-plan' }, `${planDisplay(app.state, s.type, app.state.sessions[date]).name} · ${STATUS_TEXT[s.status]}`),
+              ),
         ),
       );
     }),
@@ -180,7 +191,7 @@ function monthView(anchor, today) {
                 },
                 h('span', { class: 'day-number' }, String(Number(date.slice(8)))),
                 srOnly(`${formatDayMonth(date).replace(/^\d+/, '')}, ${weekdayLong(date)}${date === today ? ', hoje' : ''}`),
-                s.status !== 'none' && [srOnly(': '), typeChip(s.type), srOnly(` ${STATUS_TEXT[s.status]}`)],
+                s.status !== 'none' && [srOnly(': '), dayChip(date, s.type), srOnly(` ${STATUS_TEXT[s.status]}`)],
               ),
             );
           }),
@@ -190,15 +201,40 @@ function monthView(anchor, today) {
   );
 }
 
+/** Legenda gerada a partir dos modelos existentes, mais o significado do preenchimento. */
 function legend() {
+  const plans = listPlans(app.state);
   return h(
-    'ul',
-    { class: 'legend', 'aria-label': 'Legenda' },
-    [
-      ['planned', 'Planejado'],
-      ['in-progress', 'Em andamento'],
-      ['done', 'Concluído'],
-    ].map(([status, label]) => h('li', { dataset: { status } }, h('span', { class: 'type-chip' }, 'A'), label)),
+    'div',
+    { class: 'legends' },
+    h(
+      'section',
+      { class: 'legend-group', 'aria-labelledby': 'legend-plans-title' },
+      h('h4', { id: 'legend-plans-title' }, 'Treinos'),
+      h(
+        'ul',
+        { class: 'legend legend-plans' },
+        plans.map((p) =>
+          h('li', {}, h('span', { class: 'type-chip', style: planColorStyle(p.color), 'aria-hidden': 'true' }, p.label), h('span', { class: 'plan-name' }, `Treino ${p.label} — ${p.name}`)),
+        ),
+      ),
+    ),
+    h(
+      'section',
+      { class: 'legend-group', 'aria-labelledby': 'legend-status-title' },
+      h('h4', { id: 'legend-status-title' }, 'Situação'),
+      h(
+        'ul',
+        { class: 'legend' },
+        [
+          ['planned', 'Planejado (contorno)'],
+          ['in-progress', 'Em andamento (tracejado)'],
+          ['done', 'Concluído (cheio)'],
+        ].map(([status, label]) =>
+          h('li', { dataset: { status } }, h('span', { class: 'type-chip', style: planColorStyle(plans[0]?.color), 'aria-hidden': 'true' }, plans[0]?.label ?? 'A'), label),
+        ),
+      ),
+    ),
   );
 }
 

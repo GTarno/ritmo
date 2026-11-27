@@ -49,3 +49,16 @@ export function planWeek(state, date, today) {
 export function countDone(state, from, to) {
   return Object.values(state.sessions).filter((s) => s.done && s.date >= from && s.date <= to).length;
 }
+
+/**
+ * Dias de treino da semana padrão com o rótulo do modelo, na ordem seg→dom.
+ * Dias que apontam para um modelo removido ficam livres (não aparecem).
+ * @returns {Array<{ index: number, id: string, label: string }>}
+ */
+export function weekTemplateSummary(state) {
+  const template = Array.isArray(state.weekTemplate) ? state.weekTemplate : DEFAULT_WEEK_TEMPLATE;
+  return template
+    .map((id, index) => ({ index, id, plan: getPlan(state, id) }))
+    .filter((d) => d.plan)
+    .map(({ index, id, plan }) => ({ index, id, label: plan.label }));
+}

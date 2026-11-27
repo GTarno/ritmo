@@ -10,6 +10,7 @@ import { formatShort, weekdayShort } from '../dates.js';
 import { backupReminder } from '../domain/backup.js';
 import { formatNumber } from '../domain/plans.js';
 import { getSession, sessionStatus, suggestedType, progressLabel } from '../domain/sessions.js';
+import { planChip, planTitle } from '../ui/plan-chip.js';
 import {
   GOAL_MAX,
   TARGET_MIN,
@@ -82,13 +83,16 @@ function todayCard(today) {
   const status = sessionStatus(session);
   const type = session?.type ?? suggestedType(app.state, today);
   const next = status === 'none' ? nextPlanned(app.state, today) : null;
+  const title = type ? planTitle(app.state, type, session) : null;
 
-  const text = {
-    none: `Sugestão: treino ${type}.`,
-    planned: `Treino ${type} planejado.`,
-    'in-progress': `Treino ${type} em andamento · ${status === 'in-progress' ? progressLabel(session) : ''} exercícios.`,
-    done: `Treino ${type} concluído. Bom trabalho!`,
-  }[status];
+  const text = !type
+    ? 'Crie um treino para começar.'
+    : {
+        none: `Sugestão: ${title}.`,
+        planned: `${title} · planejado.`,
+        'in-progress': `${title} · em andamento · ${status === 'in-progress' ? progressLabel(session) : ''} exercícios.`,
+        done: `${title} · concluído. Bom trabalho!`,
+      }[status];
   const label = {
     none: 'Começar treino de hoje',
     planned: 'Começar treino de hoje',
@@ -107,7 +111,7 @@ function todayCard(today) {
         'p',
         { class: 'next-planned' },
         'Próximo planejado: ',
-        h('a', { href: `#sessao/${next.date}` }, `${weekdayShort(next.date)} ${formatShort(next.date)} · Treino ${next.type}`),
+        h('a', { href: `#sessao/${next.date}` }, `${weekdayShort(next.date)} ${formatShort(next.date)} · ${planTitle(app.state, next.type, next)}`),
       ),
   );
 }
@@ -147,7 +151,7 @@ function weekCard(today) {
             srOnly(` ${formatShort(d.date)}${d.date === today ? ', hoje' : ''}: `),
             d.status === 'none'
               ? [h('span', { class: 'strip-empty', 'aria-hidden': 'true' }, '·'), srOnly('livre')]
-              : [h('span', { class: 'type-chip' }, srOnly('treino '), d.type), srOnly(` ${STATUS_TEXT[d.status]}`)],
+              : [planChip(app.state, d.type, { session: app.state.sessions[d.date], srPrefix: 'treino ' }), srOnly(` ${STATUS_TEXT[d.status]}`)],
           ),
         ),
       ),
@@ -200,11 +204,11 @@ function recentCard() {
               h(
                 'a',
                 { class: 'card recent-item', href: `#sessao/${s.date}` },
-                h('span', { class: 'type-chip', dataset: { status: 'done' } }, s.type),
+                planChip(app.state, s.type, { session: app.state.sessions[s.date], status: 'done', decorative: true }),
                 h(
                   'span',
                   { class: 'recent-text' },
-                  h('strong', {}, `${weekdayShort(s.date)} ${formatShort(s.date)} · Treino ${s.type}`),
+                  h('strong', {}, `${weekdayShort(s.date)} ${formatShort(s.date)} · ${planTitle(app.state, s.type, app.state.sessions[s.date])}`),
                   h('span', { class: 'muted' }, detail),
                 ),
               ),

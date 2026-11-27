@@ -13,6 +13,7 @@ import { showStatus } from '../ui/status.js';
 import { emptyState } from '../ui/empty-state.js';
 import { isValidDate, formatLong, formatShort, compareDates } from '../dates.js';
 import { listPlans, planDisplay } from '../domain/models.js';
+import { planShort, planColorStyle } from '../ui/plan-chip.js';
 import { formatNumber } from '../domain/plans.js';
 import {
   getSession,
@@ -64,7 +65,7 @@ function typePicker(date, selected, onChange) {
     'fieldset',
     { class: 'type-picker' },
     h('legend', {}, 'Modelo'),
-    listPlans(app.state).map(({ id: type }) =>
+    listPlans(app.state).map(({ id: type, color }) =>
       h(
         'label',
         { class: 'radio-card' },
@@ -75,6 +76,7 @@ function typePicker(date, selected, onChange) {
           checked: type === selected,
           onchange: () => onChange(type),
         }),
+        h('span', { class: 'swatch', 'aria-hidden': 'true', style: `--swatch: var(--plan-${color})` }),
         h('span', {}, planLabel(type)),
       ),
     ),
@@ -92,13 +94,13 @@ function notStartedView(date, rerender) {
     // Numa sessão já planejada, trocar o modelo vale na hora.
     if (session) {
       const next = run(() => scheduleSession(app.state, date, t));
-      if (next && app.commit(next)) showStatus(`Sessão alterada para o treino ${t}.`);
+      if (next && app.commit(next)) showStatus(`Sessão alterada para o treino ${planDisplay(app.state, t).label}.`);
     }
   });
 
   const schedule = () => {
     const next = run(() => scheduleSession(app.state, date, type));
-    if (next && app.commit(next)) showStatus(`Treino ${type} agendado para ${formatShort(date)}.`);
+    if (next && app.commit(next)) showStatus(`${planShort(app.state, type)} agendado para ${formatShort(date)}.`);
     rerender('[data-action="remove"]');
   };
 

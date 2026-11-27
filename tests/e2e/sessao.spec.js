@@ -20,7 +20,7 @@ async function startToday(page, type) {
 
 test('fluxo completo: abrir, marcar, salvar parcial, recarregar e concluir', async ({ page }) => {
   await page.goto('./');
-  await expect(page.getByRole('region', { name: 'Treino de hoje' })).toContainText('Sugestão: treino B');
+  await expect(page.getByRole('region', { name: 'Treino de hoje' })).toContainText('Sugestão: Treino B — Inferiores.');
   await page.getByRole('link', { name: 'Começar treino de hoje' }).click();
 
   await expect(page.getByRole('heading', { level: 2 })).toHaveText('Hoje · terça-feira, 24 de novembro');
@@ -57,7 +57,7 @@ test('fluxo completo: abrir, marcar, salvar parcial, recarregar e concluir', asy
 
   // O cartão do painel reflete a sessão concluída
   await page.goto('./');
-  await expect(page.getByRole('region', { name: 'Treino de hoje' })).toContainText('Treino B concluído');
+  await expect(page.getByRole('region', { name: 'Treino de hoje' })).toContainText('Treino B — Inferiores · concluído');
 });
 
 test('concluir sem marcar nada mostra erro e não conclui', async ({ page }) => {

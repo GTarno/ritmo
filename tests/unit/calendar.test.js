@@ -95,3 +95,16 @@ test('daySummary e countDone', () => {
   assert.equal(countDone(s, MONDAY, '2026-11-29'), 1);
   assert.equal(countDone(s, '2026-11-24', '2026-11-29'), 0);
 });
+
+test('weekTemplateSummary usa os rótulos atuais e libera dias de modelo removido', async () => {
+  const { weekTemplateSummary } = await import('../../app/js/domain/calendar.js');
+  const { removePlan, updatePlanMeta } = await import('../../app/js/domain/models.js');
+  const ctx = { today: '2026-11-24', newId: () => 'n1' };
+  let state = createInitialState();
+  assert.deepEqual(weekTemplateSummary(state).map((d) => [d.index, d.label]), [[0, 'A'], [1, 'B'], [3, 'A'], [4, 'B']]);
+  state = updatePlanMeta(state, 'B', { label: 'P', name: 'Pernas', color: 'rosa' }, ctx).state;
+  assert.deepEqual(weekTemplateSummary(state).map((d) => d.label), ['A', 'P', 'A', 'P']);
+  state = removePlan(state, 'B', ctx).state;
+  assert.deepEqual(weekTemplateSummary(state).map((d) => [d.index, d.label]), [[0, 'A'], [3, 'A']]);
+  assert.deepEqual(weekTemplateSummary({ ...state, weekTemplate: ['X', null, null, null, null, null, null] }), []);
+});
