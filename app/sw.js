@@ -44,6 +44,7 @@ const ASSETS = [
   'js/ui/dom.js',
   'js/ui/empty-state.js',
   'js/ui/form.js',
+  'js/ui/plan-chip.js',
   'js/ui/status.js',
   'js/ui/rest-timer.js',
   'js/views/calendario.js',

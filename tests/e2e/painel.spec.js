@@ -25,7 +25,7 @@ test.beforeEach(async ({ page }) => {
 test('estado inicial: objetivo, meta 4, semana vazia e orientação', async ({ page }) => {
   await page.goto('./');
   await expect(region(page, 'Emagrecer e definir')).toContainText('Meta: 4 treinos por semana');
-  await expect(region(page, 'Treino de hoje')).toContainText('Sugestão: treino B');
+  await expect(region(page, 'Treino de hoje')).toContainText('Sugestão: Treino B — Inferiores.');
   await expect(page.getByRole('progressbar', { name: /Treinos concluídos: 0 de 4 treinos/ })).toBeVisible();
   await expect(page.getByRole('list', { name: 'Dias desta semana' }).getByRole('link')).toHaveCount(7);
   await expect(page.getByRole('term').filter({ hasText: 'Sessões concluídas' })).toBeVisible();
@@ -80,7 +80,7 @@ test('meta atingida aparece no painel', async ({ page }) => {
   await completeSession(page, TODAY, { check: 1 });
   await page.goto('./');
   await expect(page.getByText('Meta da semana atingida!')).toBeVisible();
-  await expect(region(page, 'Treino de hoje')).toContainText('Treino B concluído');
+  await expect(region(page, 'Treino de hoje')).toContainText('Treino B — Inferiores · concluído');
   await expect(region(page, 'Treino de hoje').getByRole('link')).toHaveText('Ver sessão de hoje');
 });
 
