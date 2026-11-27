@@ -120,12 +120,15 @@ function chartShell({ data, summary, draw, tooltipText }) {
 
   // Desenha com a largura real assim que o elemento entra na página, e de novo se ela mudar.
   let lastWidth = 0;
+  // O redesenho fica para o próximo quadro: redesenhar dentro do callback muda o
+  // layout de novo no mesmo quadro, e o Safari acusa "ResizeObserver loop".
+  let frame = 0;
   const observer = new ResizeObserver(([entry]) => {
     const w = Math.floor(entry.contentRect.width);
-    if (w && w !== lastWidth) {
-      lastWidth = w;
-      render();
-    }
+    if (!w || w === lastWidth) return;
+    lastWidth = w;
+    cancelAnimationFrame(frame);
+    frame = requestAnimationFrame(render);
   });
   observer.observe(plot);
   render();
