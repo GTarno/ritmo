@@ -5,9 +5,8 @@ import { field } from '../ui/form.js';
 import { formDialog } from '../ui/dialog.js';
 import { showStatus } from '../ui/status.js';
 import { emptyState } from '../ui/empty-state.js';
-import { DEFAULT_PLAN_NAMES } from '../domain/initial-state.js';
+import { listPlans, getPlan } from '../domain/models.js';
 import {
-  PLAN_TYPES,
   LIMITS,
   parseExerciseForm,
   addExercise,
@@ -20,6 +19,14 @@ import {
 } from '../domain/plans.js';
 
 let selected = 'A';
+
+/** Modelo selecionado; se ele não existe mais, o primeiro da lista. */
+function currentPlan() {
+  const plan = getPlan(app.state, selected) ?? listPlans(app.state)[0];
+  selected = plan.id;
+  return plan;
+}
+const label = () => currentPlan().label;
 
 const reasonField = () =>
   field({
@@ -67,7 +74,7 @@ function exerciseFields(ex = {}) {
 
 async function onAdd(rerender) {
   const result = await formDialog({
-    title: `Novo exercício no treino ${selected}`,
+    title: `Novo exercício no treino ${label()}`,
     content: exerciseFields({ load: null, rest: 75 }),
     submitLabel: 'Adicionar',
     onSubmit: (values) => {
@@ -77,7 +84,7 @@ async function onAdd(rerender) {
   });
   if (!result) return;
   const { state, exercise } = addExercise(app.state, selected, result.fields, result.reason, app.ctx());
-  if (app.commit(state)) showStatus(`${exercise.name} adicionado ao treino ${selected}.`);
+  if (app.commit(state)) showStatus(`${exercise.name} adicionado ao treino ${label()}.`);
   rerender(`[data-exercise="${exercise.id}"] [data-action="edit"]`);
 }
 
@@ -101,7 +108,7 @@ async function onRemove(ex, rerender) {
   const result = await formDialog({
     title: `Remover ${ex.name}?`,
     content: [
-      h('p', {}, `O exercício sai do treino ${selected}. Sessões já registradas e o histórico de cargas continuam como estão.`),
+      h('p', {}, `O exercício sai do treino ${label()}. Sessões já registradas e o histórico de cargas continuam como estão.`),
       reasonField(),
     ],
     submitLabel: 'Remover',
@@ -111,7 +118,7 @@ async function onRemove(ex, rerender) {
   });
   if (!result) return rerender(`[data-exercise="${ex.id}"] [data-action="remove"]`);
   const { state } = removeExercise(app.state, selected, ex.id, result.reason, app.ctx());
-  if (app.commit(state)) showStatus(`${ex.name} removido do treino ${selected}.`);
+  if (app.commit(state)) showStatus(`${ex.name} removido do treino ${label()}.`);
   rerender('[data-action="add"]');
 }
 
@@ -126,9 +133,9 @@ function onMove(ex, direction, rerender) {
 }
 
 async function onEditCardio(rerender) {
-  const plan = app.state.plans[selected];
+  const plan = currentPlan();
   const result = await formDialog({
-    title: `Cardio do treino ${selected}`,
+    title: `Cardio do treino ${label()}`,
     content: [
       field({
         label: 'Cardio',
@@ -154,19 +161,19 @@ function planSwitcher(rerender) {
   return h(
     'div',
     { class: 'segmented', role: 'group', 'aria-label': 'Modelo de treino' },
-    PLAN_TYPES.map((type) =>
+    listPlans(app.state).map((plan) =>
       h(
         'button',
         {
           type: 'button',
-          'aria-pressed': String(type === selected),
-          dataset: { plan: type },
+          'aria-pressed': String(plan.id === currentPlan().id),
+          dataset: { plan: plan.id },
           onclick: () => {
-            selected = type;
-            rerender(`[data-plan="${type}"]`);
+            selected = plan.id;
+            rerender(`[data-plan="${CSS.escape(plan.id)}"]`);
           },
         },
-        `Treino ${type}`,
+        `Treino ${plan.label}`,
       ),
     ),
   );
@@ -231,21 +238,21 @@ function exerciseItem(ex, index, total, rerender) {
 }
 
 function planContent(rerender) {
-  const plan = app.state.plans[selected];
+  const plan = currentPlan();
   const exercises = plan.exercises;
-  const name = plan.name ?? DEFAULT_PLAN_NAMES[selected];
+  const name = plan.name;
   const count = exercises.length === 1 ? '1 exercício' : `${exercises.length} exercícios`;
 
   return [
-    h('div', { class: 'plan-header' }, h('h3', {}, `Treino ${selected}`, name && ` — ${name}`), h('p', { class: 'muted' }, count)),
+    h('div', { class: 'plan-header' }, h('h3', {}, `Treino ${plan.label}`, name && ` — ${name}`), h('p', { class: 'muted' }, count)),
     exercises.length
       ? h(
           'ol',
-          { class: 'exercise-list', 'aria-label': `Exercícios do treino ${selected}` },
+          { class: 'exercise-list', 'aria-label': `Exercícios do treino ${label()}` },
           exercises.map((ex, i) => exerciseItem(ex, i, exercises.length, rerender)),
         )
       : emptyState({
-          title: `Nenhum exercício no treino ${selected}`,
+          title: `Nenhum exercício no treino ${label()}`,
           text: 'Adicione os exercícios que você faz neste dia.',
         }),
     h(

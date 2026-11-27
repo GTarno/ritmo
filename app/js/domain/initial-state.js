@@ -20,14 +20,18 @@ const PLAN_EXERCISES = {
   ],
 };
 
-/** Nome do grupo de cada modelo. Campo opcional: dados antigos sem ele usam este padrão. */
+/** Nome do grupo de cada modelo inicial (também usado na migração de dados antigos sem nome). */
 export const DEFAULT_PLAN_NAMES = { A: 'Superiores e core', B: 'Inferiores' };
+export const DEFAULT_PLAN_COLORS = { A: 'laranja', B: 'azul' };
 
 export const DEFAULT_WEEK_TEMPLATE = ['A', 'B', null, 'A', 'B', null, null];
 
 function buildPlan(type) {
   return {
+    id: type,
+    label: type,
     name: DEFAULT_PLAN_NAMES[type],
+    color: DEFAULT_PLAN_COLORS[type],
     cardio: DEFAULT_CARDIO,
     exercises: PLAN_EXERCISES[type].map(([id, name, overrides]) => ({
       id,
@@ -45,7 +49,7 @@ export function createInitialState() {
     target: 4,
     timezone: 'America/Sao_Paulo',
     weekTemplate: [...DEFAULT_WEEK_TEMPLATE],
-    plans: { A: buildPlan('A'), B: buildPlan('B') },
+    plans: [buildPlan('A'), buildPlan('B')],
     sessions: {},
     measurements: [],
     notes: [],

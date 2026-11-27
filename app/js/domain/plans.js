@@ -1,11 +1,13 @@
-// Regras dos modelos de treino (A e B). Funções puras: recebem o estado e
-// devolvem um estado novo, sem alterar o original. Sessões nunca são tocadas
-// aqui: cada sessão guarda a própria cópia do modelo, feita ao ser aberta.
+// Regras dos exercícios e do cardio de um modelo de treino. Funções puras:
+// recebem o estado e devolvem um estado novo, sem alterar o original. Sessões
+// nunca são tocadas aqui: cada sessão guarda a própria cópia do modelo.
+// O modelo é indicado pelo id (veja domain/models.js); nos textos do diário
+// aparece o rótulo (A, B, C…).
 //
 // Toda mudança gera um registro de ajuste no diário (categoria 'ajuste'),
 // com os dados antes/depois e o motivo opcional.
 
-export const PLAN_TYPES = ['A', 'B'];
+import { getPlan } from './models.js';
 
 export const LIMITS = {
   nameMax: 60,
@@ -110,11 +112,13 @@ function cleanReason(reason) {
 // ---------- Operações ----------
 
 function assertPlan(state, type) {
-  if (!PLAN_TYPES.includes(type) || !state.plans?.[type]) throw new Error(`Modelo inválido: ${type}`);
+  const plan = getPlan(state, type);
+  if (!plan) throw new Error(`Modelo inválido: ${type}`);
+  return plan;
 }
 
 function findIndex(state, type, id) {
-  const index = state.plans[type].exercises.findIndex((e) => e.id === id);
+  const index = assertPlan(state, type).exercises.findIndex((e) => e.id === id);
   if (index === -1) throw new Error(`Exercício não encontrado: ${id}`);
   return index;
 }
@@ -122,7 +126,7 @@ function findIndex(state, type, id) {
 function replacePlan(state, type, plan, note) {
   return {
     ...state,
-    plans: { ...state.plans, [type]: plan },
+    plans: state.plans.map((p) => (p.id === type ? plan : p)),
     notes: note ? [...state.notes, note] : state.notes,
   };
 }
@@ -149,9 +153,9 @@ function adjustmentNote(ctx, type, text, change) {
 export function addExercise(state, type, fields, reason, ctx) {
   assertPlan(state, type);
   const exercise = { id: ctx.newId(), ...fields };
-  const plan = state.plans[type];
+  const plan = getPlan(state, type);
   const why = cleanReason(reason);
-  const note = adjustmentNote(ctx, type, withReason(`Exercício adicionado ao treino ${type}: ${fields.name}.`, why), {
+  const note = adjustmentNote(ctx, type, withReason(`Exercício adicionado ao treino ${plan.label}: ${fields.name}.`, why), {
     action: 'add',
     exerciseId: exercise.id,
     before: null,
@@ -169,7 +173,7 @@ export function addExercise(state, type, fields, reason, ctx) {
 export function updateExercise(state, type, id, fields, reason, ctx) {
   assertPlan(state, type);
   const index = findIndex(state, type, id);
-  const plan = state.plans[type];
+  const plan = getPlan(state, type);
   const before = plan.exercises[index];
   const after = { ...before, ...fields, id: before.id };
   const changed = diffExercise(before, after);
@@ -194,10 +198,10 @@ export function updateExercise(state, type, id, fields, reason, ctx) {
 export function removeExercise(state, type, id, reason, ctx) {
   assertPlan(state, type);
   const index = findIndex(state, type, id);
-  const plan = state.plans[type];
+  const plan = getPlan(state, type);
   const before = plan.exercises[index];
   const why = cleanReason(reason);
-  const note = adjustmentNote(ctx, type, withReason(`Exercício removido do treino ${type}: ${before.name}.`, why), {
+  const note = adjustmentNote(ctx, type, withReason(`Exercício removido do treino ${plan.label}: ${before.name}.`, why), {
     action: 'remove',
     exerciseId: id,
     before,
@@ -213,17 +217,17 @@ export function moveExercise(state, type, id, direction) {
   assertPlan(state, type);
   const index = findIndex(state, type, id);
   const target = index + direction;
-  const list = state.plans[type].exercises;
+  const list = getPlan(state, type).exercises;
   if (target < 0 || target >= list.length) return { state, moved: false };
   const exercises = [...list];
   [exercises[index], exercises[target]] = [exercises[target], exercises[index]];
-  return { state: replacePlan(state, type, { ...state.plans[type], exercises }, null), moved: true };
+  return { state: replacePlan(state, type, { ...getPlan(state, type), exercises }, null), moved: true };
 }
 
 /** Altera o cardio (texto livre). Gera registro se mudou ou se há motivo. */
 export function updateCardio(state, type, cardio, reason, ctx) {
   assertPlan(state, type);
-  const plan = state.plans[type];
+  const plan = getPlan(state, type);
   const before = plan.cardio ?? '';
   const after = String(cardio ?? '').trim().slice(0, LIMITS.cardioMax);
   const why = cleanReason(reason);
@@ -231,8 +235,8 @@ export function updateCardio(state, type, cardio, reason, ctx) {
 
   const summary =
     before === after
-      ? `Cardio do treino ${type}: sem alteração.`
-      : `Cardio do treino ${type}: ${before || 'sem cardio'} → ${after || 'sem cardio'}.`;
+      ? `Cardio do treino ${plan.label}: sem alteração.`
+      : `Cardio do treino ${plan.label}: ${before || 'sem cardio'} → ${after || 'sem cardio'}.`;
   const note = adjustmentNote(ctx, type, withReason(summary, why), {
     action: 'cardio',
     exerciseId: null,

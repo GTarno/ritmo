@@ -34,6 +34,7 @@ const ASSETS = [
   'js/domain/initial-state.js',
   'js/domain/journal.js',
   'js/domain/migrations.js',
+  'js/domain/models.js',
   'js/domain/plans.js',
   'js/domain/progress.js',
   'js/domain/sessions.js',

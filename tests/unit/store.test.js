@@ -43,7 +43,7 @@ test('salvar e carregar preserva o estado completo no envelope', () => {
   assert.deepEqual(store.save(state), { ok: true });
 
   const saved = JSON.parse(storage.map.get(STORAGE_KEY));
-  assert.equal(saved.schemaVersion, 1);
+  assert.equal(saved.schemaVersion, 2);
 
   const reloaded = createStore({ storage }).load();
   assert.equal(reloaded.status, 'ok');
@@ -120,7 +120,8 @@ test('formato antigo sem envelope é migrado, preservando dados e guardando o or
   const legacy = {
     goal: 'Meu objetivo',
     target: 3,
-    plans: createInitialState().plans,
+    // Formato da primeira versão: modelos fixos { A, B }
+    plans: Object.fromEntries(createInitialState().plans.map(({ id, name, cardio, exercises }) => [id, { name, cardio, exercises }])),
     sessions: { '2026-11-20': { date: '2026-11-20', type: 'B', done: true } },
     measurements: [{ date: '2026-11-20', weight: 70 }],
     notes: [],
@@ -135,7 +136,8 @@ test('formato antigo sem envelope é migrado, preservando dados e guardando o or
   assert.deepEqual(r.state.sessions, legacy.sessions);
   assert.equal(r.state.timezone, 'America/Sao_Paulo', 'campos novos recebem o padrão');
   assert.equal(storage.map.get('ritmo:pre-migration:v1:7'), raw);
-  assert.equal(JSON.parse(storage.map.get(STORAGE_KEY)).schemaVersion, 1);
+  assert.equal(JSON.parse(storage.map.get(STORAGE_KEY)).schemaVersion, 2);
+  assert.deepEqual(r.state.plans.map((p) => p.id), ['A', 'B'], 'migrado até o formato atual');
 });
 
 test('migrações rodam em sequência e regravam no formato atual', () => {

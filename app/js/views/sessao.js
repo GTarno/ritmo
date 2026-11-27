@@ -12,8 +12,8 @@ import { confirmDialog } from '../ui/dialog.js';
 import { showStatus } from '../ui/status.js';
 import { emptyState } from '../ui/empty-state.js';
 import { isValidDate, formatLong, formatShort, compareDates } from '../dates.js';
-import { DEFAULT_PLAN_NAMES } from '../domain/initial-state.js';
-import { PLAN_TYPES, formatNumber } from '../domain/plans.js';
+import { listPlans, planDisplay } from '../domain/models.js';
+import { formatNumber } from '../domain/plans.js';
 import {
   getSession,
   sessionStatus,
@@ -39,7 +39,11 @@ const STATUS_LABEL = {
   done: 'Concluída',
 };
 
-const planLabel = (type) => `Treino ${type} — ${app.state.plans[type]?.name ?? DEFAULT_PLAN_NAMES[type]}`;
+/** "Treino A — Superiores e core" (ou o que ficou guardado na sessão, se o modelo foi removido). */
+const planLabel = (type, session = null) => {
+  const { label, name } = planDisplay(app.state, type, session);
+  return `Treino ${label} — ${name}`;
+};
 
 function run(action) {
   try {
@@ -60,7 +64,7 @@ function typePicker(date, selected, onChange) {
     'fieldset',
     { class: 'type-picker' },
     h('legend', {}, 'Modelo'),
-    PLAN_TYPES.map((type) =>
+    listPlans(app.state).map(({ id: type }) =>
       h(
         'label',
         { class: 'radio-card' },
@@ -301,7 +305,7 @@ function openedView(date, rerender) {
   const form = h(
     'form',
     { class: 'session-form', novalidate: true, onsubmit: (e) => e.preventDefault() },
-    h('p', { class: 'muted' }, planLabel(session.type)),
+    h('p', { class: 'muted' }, planLabel(session.type, session)),
     progress,
     session.exercises.length
       ? h(

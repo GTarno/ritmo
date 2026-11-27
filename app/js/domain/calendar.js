@@ -1,6 +1,6 @@
 // Regras do calendário. Funções puras.
 import { weekDays, weekStart } from '../dates.js';
-import { PLAN_TYPES } from './plans.js';
+import { getPlan } from './models.js';
 import { sessionStatus, scheduleSession } from './sessions.js';
 import { DEFAULT_WEEK_TEMPLATE } from './initial-state.js';
 
@@ -22,7 +22,7 @@ export function previewWeekPlan(state, date, today) {
   const template = Array.isArray(state.weekTemplate) ? state.weekTemplate : DEFAULT_WEEK_TEMPLATE;
   return weekDays(date)
     .map((day, i) => ({ date: day, type: template[i] }))
-    .filter(({ type }) => PLAN_TYPES.includes(type))
+    .filter(({ type }) => getPlan(state, type) !== null)
     .map(({ date: day, type }) => {
       if (state.sessions[day]) return { date: day, type, action: 'exists', existing: state.sessions[day].type };
       if (day < today) return { date: day, type, action: 'past' };

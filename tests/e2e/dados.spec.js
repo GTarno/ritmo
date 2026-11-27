@@ -59,7 +59,7 @@ test('baixar backup gera o arquivo com todos os dados e registra a data', async 
   expect(download.suggestedFilename()).toBe('ritmo-backup-2026-11-24.json');
 
   const file = JSON.parse(await readFile(await download.path(), 'utf8'));
-  expect(file).toMatchObject({ app: 'ritmo', schemaVersion: 1 });
+  expect(file).toMatchObject({ app: 'ritmo', schemaVersion: 2 });
   expect(file.exportedAt).toBe(NOW.toISOString());
   expect(file.data).toEqual(before);
 

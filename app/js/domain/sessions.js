@@ -7,7 +7,8 @@
 //
 // Ao abrir, a sessão copia o modelo vigente. Depois disso, editar o modelo não
 // muda a sessão, e editar a sessão não muda o modelo.
-import { PLAN_TYPES, parseDecimal } from './plans.js';
+import { parseDecimal } from './plans.js';
+import { getPlan, listPlans } from './models.js';
 import { isValidDate, weekdayIndex } from '../dates.js';
 
 export const NOTES_MAX = 1000;
@@ -34,12 +35,12 @@ export function canRegister(date, today) {
   return date <= today;
 }
 
-/** Modelo sugerido para a data: o já planejado, senão o da semana padrão, senão A. */
+/** Modelo sugerido para a data: o já planejado, senão o da semana padrão, senão o primeiro da lista. */
 export function suggestedType(state, date) {
   const planned = state.sessions[date]?.type;
-  if (PLAN_TYPES.includes(planned)) return planned;
+  if (getPlan(state, planned)) return planned;
   const fromWeek = state.weekTemplate?.[weekdayIndex(date)];
-  return PLAN_TYPES.includes(fromWeek) ? fromWeek : 'A';
+  return getPlan(state, fromWeek) ? fromWeek : listPlans(state)[0]?.id;
 }
 
 function assertDate(date) {
@@ -47,7 +48,7 @@ function assertDate(date) {
 }
 
 function assertType(state, type) {
-  if (!PLAN_TYPES.includes(type) || !state.plans?.[type]) throw new SessionError(`Modelo inválido: ${type}`);
+  if (!getPlan(state, type)) throw new SessionError(`Modelo inválido: ${type}`);
 }
 
 function withSession(state, date, session) {
@@ -69,9 +70,14 @@ export function scheduleSession(state, date, type) {
   return withSession(state, date, { date, type, done: false });
 }
 
-/** Cópia do modelo para a sessão. */
+/**
+ * Cópia do modelo para a sessão. Guarda também rótulo e nome do modelo, para a
+ * sessão continuar legível se o modelo for renomeado ou removido depois.
+ */
 function copyPlan(plan) {
   return {
+    planLabel: plan.label,
+    planName: plan.name,
     exercises: plan.exercises.map((ex) => ({
       id: ex.id,
       name: ex.name,
@@ -100,7 +106,7 @@ export function openSession(state, date, type, today) {
 
   const chosen = type ?? suggestedType(state, date);
   assertType(state, chosen);
-  const session = { date, type: chosen, done: false, ...copyPlan(state.plans[chosen]) };
+  const session = { date, type: chosen, done: false, ...copyPlan(getPlan(state, chosen)) };
   return { state: withSession(state, date, session), session, opened: true };
 }
 

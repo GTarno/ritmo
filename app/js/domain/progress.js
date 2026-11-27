@@ -101,9 +101,9 @@ export function loadSeries(state, exerciseId, limit = CHART_POINTS) {
  */
 export function exerciseOptions(state) {
   const options = new Map();
-  for (const type of ['A', 'B']) {
-    for (const ex of state.plans[type]?.exercises ?? []) {
-      if (!options.has(ex.id)) options.set(ex.id, { id: ex.id, name: ex.name, plan: type, inPlan: true });
+  for (const plan of state.plans ?? []) {
+    for (const ex of plan.exercises) {
+      if (!options.has(ex.id)) options.set(ex.id, { id: ex.id, name: ex.name, plan: plan.label, inPlan: true });
     }
   }
   const sessions = Object.values(state.sessions)
@@ -111,7 +111,7 @@ export function exerciseOptions(state) {
     .sort((a, b) => (a.date < b.date ? 1 : -1));
   for (const s of sessions) {
     for (const ex of s.exercises) {
-      if (ex.checked && !options.has(ex.id)) options.set(ex.id, { id: ex.id, name: ex.name, plan: s.type, inPlan: false });
+      if (ex.checked && !options.has(ex.id)) options.set(ex.id, { id: ex.id, name: ex.name, plan: s.planLabel ?? s.type, inPlan: false });
     }
   }
   return [...options.values()];
