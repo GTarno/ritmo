@@ -543,7 +543,6 @@ input[type="checkbox"], input[type="radio"] {
 .day-name .weekday { font-weight: 600; text-transform: capitalize; }
 .day-name .muted { font-size: var(--text-sm); }
 .day-status { display: flex; align-items: center; gap: var(--space-2); color: var(--color-text-muted); font-size: var(--text-sm); }
-.day-row[data-status="none"] .day-status { opacity: 0.7; }
 
 .month-grid { width: 100%; border-collapse: separate; border-spacing: 4px; table-layout: fixed; margin: 0 -4px; }
 .month-grid th { font-size: var(--text-sm); font-weight: 600; color: var(--color-text-muted); padding-bottom: var(--space-1); }
@@ -565,7 +564,7 @@ input[type="checkbox"], input[type="radio"] {
 .day-cell:hover { border-color: var(--color-accent); }
 .day-cell.is-today { border-width: 2px; border-color: var(--color-accent); font-weight: 700; }
 .day-cell .type-chip { width: 1.5rem; height: 1.5rem; font-size: 0.75rem; }
-.month-grid td.out .day-cell { opacity: 0.45; }
+.month-grid td.out .day-cell { background: transparent; border-style: dashed; color: var(--color-text-muted); }
 
 .legend { list-style: none; display: flex; flex-wrap: wrap; gap: var(--space-4); padding: 0; margin: var(--space-4) 0 0; font-size: var(--text-sm); color: var(--color-text-muted); }
 .legend li { display: flex; align-items: center; gap: var(--space-2); }

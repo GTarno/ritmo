@@ -46,3 +46,45 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 7
+
+  e2e-webkit:
+    name: Testes e2e (Safari/WebKit)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps webkit
+      - run: npm run test:e2e -- --project=iphone
+        env:
+          CI: true
+          WEBKIT: 1
+      - uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: playwright-report-webkit
+          path: playwright-report/
+          retention-days: 7
+
+  lighthouse:
+    name: Lighthouse (acessibilidade e boas práticas)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - name: Servir o app em /ritmo/
+        run: |
+          node scripts/serve.js &
+          for i in $(seq 1 20); do curl -sf http://localhost:4173/ritmo/ >/dev/null && break; sleep 0.5; done
+      - name: Lighthouse no perfil de celular
+        run: >
+          npx --yes lighthouse@13.5.0 http://localhost:4173/ritmo/
+          --only-categories=accessibility,best-practices,performance,seo
+          --chrome-flags="--headless=new --no-sandbox"
+          --output=json --output-path=lighthouse.json --quiet
+      - run: node scripts/check-lighthouse.js lighthouse.json 0.9

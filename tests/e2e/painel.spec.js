@@ -61,7 +61,7 @@ test('concluir sessão atualiza frequência, total, semana e histórico', async 
 
   await expect(page.getByRole('progressbar', { name: /1 de 4 treinos/ })).toBeVisible();
   await expect(page.getByRole('definition').first()).toHaveText('1');
-  await expect(page.getByRole('link', { name: 'segunda-feira, 23 de novembro: treino A concluído' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'seg 23/11: treino A concluído' })).toBeVisible();
 
   const recent = region(page, 'Histórico recente').getByRole('link');
   await expect(recent).toHaveCount(1);
