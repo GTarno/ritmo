@@ -5,6 +5,7 @@ import { routes, DEFAULT_ROUTE } from './views/routes.js';
 import { h, icon, ICONS } from './ui/dom.js';
 import { showStatus } from './ui/status.js';
 import { setupPwa } from './pwa.js';
+import { setupRestTimer } from './ui/rest-timer.js';
 
 export { app };
 
@@ -44,3 +45,4 @@ const { message, status } = app.loaded;
 if (message) showStatus(message, { type: status === 'migrated' ? 'info' : 'error' });
 
 setupPwa();
+setupRestTimer();

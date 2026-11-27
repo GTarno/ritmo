@@ -776,3 +776,43 @@ input[type="checkbox"], input[type="radio"] {
 .install-steps { padding: var(--space-3); border-radius: var(--radius-sm); background: var(--color-surface-2); }
 .protection-ok strong { color: var(--color-success); }
 .protection-warn strong { color: var(--color-danger); }
+
+/* Timer de descanso */
+.btn-rest { min-height: 40px; margin: var(--space-2) 0 0 calc(24px + var(--space-3)); padding: 0 var(--space-3); font-size: var(--text-sm); }
+#timer:empty { display: none; }
+#timer {
+  position: fixed;
+  z-index: 15;
+  left: var(--space-3);
+  right: var(--space-3);
+  top: max(var(--space-2), env(safe-area-inset-top));
+  display: flex;
+  justify-content: center;
+}
+.rest-timer {
+  width: 100%;
+  max-width: 32rem;
+  padding: var(--space-3) var(--space-3) var(--space-2) var(--space-4);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+  border: 2px solid var(--color-accent);
+  box-shadow: var(--shadow);
+}
+.rest-main { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); }
+.rest-title { margin: 0; font-weight: 600; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rest-label { font-weight: 400; color: var(--color-text-muted); }
+.rest-clock { margin: 0; font-size: 2rem; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1; }
+.rest-bar { height: 6px; margin: var(--space-2) 0; border-radius: 999px; background: var(--color-surface-2); overflow: hidden; }
+.rest-bar span { display: block; height: 100%; background: var(--color-accent); }
+.rest-actions { display: flex; align-items: center; gap: var(--space-2); }
+.rest-actions .btn { min-height: 40px; padding: 0 var(--space-3); }
+.rest-actions .btn-primary { margin-left: auto; }
+.rest-actions .icon-btn[aria-pressed="true"] { color: var(--color-accent); }
+/* Com o timer visível, o conteúdo e os avisos descem para não ficarem atrás dele */
+body.has-timer #app { padding-top: 132px; }
+body.has-timer .status { top: calc(132px + var(--space-2)); }
+@media (min-width: 900px) {
+  #timer { left: auto; right: var(--space-5); top: var(--space-5); width: 24rem; }
+  body.has-timer #app { padding-top: var(--space-5); }
+  body.has-timer .status { top: auto; }
+}

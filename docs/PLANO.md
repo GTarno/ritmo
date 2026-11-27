@@ -148,9 +148,13 @@ As issues estão no GitHub com o rótulo do marco (`M0`…`M4`).
 - [#17](https://github.com/GTarno/ritmo/issues/17) Timer de descanso
 - [#18](https://github.com/GTarno/ritmo/issues/18) Registro por série (carga, repetições, esforço)
 - [#19](https://github.com/GTarno/ritmo/issues/19) Indicador de progressão de carga
-- [#20](https://github.com/GTarno/ritmo/issues/20) Semana configurável (dias e sequência A/B)
+- [#23](https://github.com/GTarno/ritmo/issues/23) Modelos de treino editáveis: criar, renomear e remover (além de A e B)
+  - [#36](https://github.com/GTarno/ritmo/issues/36) Novo formato de dados e migração v1 → v2
+  - [#37](https://github.com/GTarno/ritmo/issues/37) Tela de treinos: criar, duplicar, renomear, reordenar e remover modelos
+  - [#38](https://github.com/GTarno/ritmo/issues/38) Sessão, calendário e painel com qualquer número de modelos
+  - [#39](https://github.com/GTarno/ritmo/issues/39) Evolução e diário com qualquer número de modelos
+- [#20](https://github.com/GTarno/ritmo/issues/20) Semana configurável (dias e sequência de modelos) — depende de #36
 - [#21](https://github.com/GTarno/ritmo/issues/21) Tema escuro
 
 ### M4 — Futuro (a avaliar)
 - [#22](https://github.com/GTarno/ritmo/issues/22) Sincronização entre dispositivos
-- [#23](https://github.com/GTarno/ritmo/issues/23) Mais de dois modelos de treino (A/B/C…)
