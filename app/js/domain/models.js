@@ -7,14 +7,16 @@
 // - label: rótulo curto das bolinhas (1–3 caracteres, único).
 // - color: uma das cores de PLAN_COLORS (contraste validado nos temas).
 
-export const PLAN_COLORS = ['laranja', 'azul', 'verde', 'roxo', 'rosa', 'turquesa'];
+// Ordem da paleta categórica validada (contraste e separação para daltonismo,
+// temas claro e escuro). A cor nunca aparece sozinha: sempre com o rótulo.
+export const PLAN_COLORS = ['azul', 'laranja', 'turquesa', 'amarelo', 'rosa', 'verde'];
 export const COLOR_LABELS = {
-  laranja: 'Laranja',
   azul: 'Azul',
-  verde: 'Verde',
-  roxo: 'Roxo',
-  rosa: 'Rosa',
+  laranja: 'Laranja',
   turquesa: 'Turquesa',
+  amarelo: 'Amarelo',
+  rosa: 'Rosa',
+  verde: 'Verde',
 };
 export const LABEL_MAX = 3;
 export const NAME_MAX = 40;

@@ -1,5 +1,5 @@
 // Regras do diário. Funções puras.
-// Registros manuais e ajustes gerados pelo Treino AB (auto: true, com `change`)
+// Registros manuais e ajustes gerados na aba Treinos (auto: true, com `change`)
 // ficam na mesma lista, state.notes.
 import { isValidDate } from '../dates.js';
 import { parseInteger } from './plans.js';

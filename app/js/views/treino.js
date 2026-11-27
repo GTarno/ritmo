@@ -1,11 +1,26 @@
-// Tela "Treino AB": modelos A e B, edição de exercícios e cardio.
+// Tela "Treinos": modelos de treino (criar, duplicar, editar, reordenar, remover), exercícios e cardio.
 import { app } from '../app-state.js';
 import { h, icon, ICONS } from '../ui/dom.js';
-import { field } from '../ui/form.js';
-import { formDialog } from '../ui/dialog.js';
+import { field, colorField } from '../ui/form.js';
+import { formDialog, confirmDialog } from '../ui/dialog.js';
 import { showStatus } from '../ui/status.js';
 import { emptyState } from '../ui/empty-state.js';
-import { listPlans, getPlan } from '../domain/models.js';
+import {
+  listPlans,
+  getPlan,
+  PLAN_COLORS,
+  COLOR_LABELS,
+  LABEL_MAX,
+  NAME_MAX,
+  nextLabel,
+  nextColor,
+  parsePlanForm,
+  createPlan,
+  duplicatePlan,
+  updatePlanMeta,
+  movePlan,
+  removePlan,
+} from '../domain/models.js';
 import {
   LIMITS,
   parseExerciseForm,
@@ -155,27 +170,169 @@ async function onEditCardio(rerender) {
   rerender('[data-action="cardio"]');
 }
 
+// ---------- Treinos (modelos) ----------
+
+const focusPlan = (id) => `[data-plan="${CSS.escape(id)}"]`;
+const swatch = (color) => h('span', { class: 'swatch', 'aria-hidden': 'true', style: `--swatch: var(--plan-${color})` });
+
+function planFields(meta) {
+  return [
+    field({ label: 'Nome', name: 'name', value: meta.name, required: true, maxlength: NAME_MAX, placeholder: 'Ex.: Corpo todo' }),
+    field({
+      label: 'Rótulo',
+      name: 'label',
+      value: meta.label,
+      required: true,
+      maxlength: LABEL_MAX,
+      hint: `1 a ${LABEL_MAX} letras ou números. Aparece no calendário e no Início.`,
+    }),
+    colorField({
+      label: 'Cor',
+      name: 'color',
+      value: meta.color,
+      options: PLAN_COLORS.map((c) => ({ value: c, label: COLOR_LABELS[c] })),
+    }),
+  ];
+}
+
+async function onNewPlan(rerender) {
+  const meta = await formDialog({
+    title: 'Novo treino',
+    content: planFields({ name: '', label: nextLabel(app.state), color: nextColor(app.state) }),
+    submitLabel: 'Criar',
+    onSubmit: (values) => parsePlanForm(values, app.state),
+  });
+  if (!meta) return rerender('[data-action="new-plan"]');
+  const { state, plan } = createPlan(app.state, meta, app.ctx());
+  selected = plan.id;
+  if (app.commit(state)) showStatus(`Treino ${plan.label} criado. Agora adicione os exercícios.`);
+  rerender('[data-action="add"]');
+}
+
+async function onDuplicatePlan(rerender) {
+  const source = currentPlan();
+  const meta = await formDialog({
+    title: `Duplicar treino ${source.label}`,
+    content: [
+      h('p', { class: 'muted' }, 'A cópia começa com os mesmos exercícios e cardio. O histórico de cargas de cada treino fica separado.'),
+      ...planFields({ name: `${source.name} (cópia)`.slice(0, NAME_MAX), label: nextLabel(app.state), color: nextColor(app.state) }),
+    ],
+    submitLabel: 'Duplicar',
+    onSubmit: (values) => parsePlanForm(values, app.state),
+  });
+  if (!meta) return rerender('[data-action="duplicate-plan"]');
+  const { state, plan } = duplicatePlan(app.state, source.id, meta, app.ctx());
+  selected = plan.id;
+  if (app.commit(state)) showStatus(`Treino ${plan.label} criado como cópia de ${source.label}.`);
+  rerender(focusPlan(plan.id));
+}
+
+async function onEditPlan(rerender) {
+  const plan = currentPlan();
+  const meta = await formDialog({
+    title: `Editar treino ${plan.label}`,
+    content: planFields(plan),
+    onSubmit: (values) => parsePlanForm(values, app.state, plan.id),
+  });
+  if (!meta) return rerender('[data-action="edit-plan"]');
+  const { state, changed } = updatePlanMeta(app.state, plan.id, meta, app.ctx());
+  if (!changed) showStatus('Nada foi alterado.');
+  else if (app.commit(state)) showStatus('Treino atualizado. A mudança foi registrada no diário.');
+  rerender('[data-action="edit-plan"]');
+}
+
+function onMovePlan(direction, rerender) {
+  const plan = currentPlan();
+  const { state, moved } = movePlan(app.state, plan.id, direction);
+  if (!moved) return;
+  app.commit(state);
+  const own = direction < 0 ? 'plan-before' : 'plan-after';
+  const other = direction < 0 ? 'plan-after' : 'plan-before';
+  rerender(`[data-action="${own}"]:not([disabled]), [data-action="${other}"]`);
+}
+
+async function onRemovePlan(rerender) {
+  const plan = currentPlan();
+  const scheduled = Object.values(app.state.sessions).filter((s) => s.type === plan.id && !Array.isArray(s.exercises)).length;
+  const ok = await confirmDialog(
+    [
+      h('p', {}, `O treino ${plan.label} — ${plan.name} e seus ${plan.exercises.length} exercícios saem da lista de treinos.`),
+      h(
+        'ul',
+        { class: 'summary-list' },
+        h('li', {}, 'Sessões já registradas e o histórico de cargas continuam.'),
+        scheduled > 0 &&
+          h('li', {}, scheduled === 1 ? '1 sessão só agendada deste treino sai da agenda.' : `${scheduled} sessões só agendadas deste treino saem da agenda.`),
+        h('li', {}, 'Na semana padrão, os dias deste treino ficam livres.'),
+      ),
+    ],
+    { title: `Remover treino ${plan.label}?`, confirmLabel: 'Remover', danger: true },
+  );
+  if (!ok) return rerender('[data-action="remove-plan"]');
+  const { state } = removePlan(app.state, plan.id, app.ctx());
+  selected = listPlans(state)[0].id;
+  if (app.commit(state)) showStatus(`Treino ${plan.label} removido.`);
+  rerender(focusPlan(selected));
+}
+
 // ---------- Renderização ----------
 
 function planSwitcher(rerender) {
   return h(
     'div',
-    { class: 'segmented', role: 'group', 'aria-label': 'Modelo de treino' },
-    listPlans(app.state).map((plan) =>
-      h(
-        'button',
-        {
-          type: 'button',
-          'aria-pressed': String(plan.id === currentPlan().id),
-          dataset: { plan: plan.id },
-          onclick: () => {
-            selected = plan.id;
-            rerender(`[data-plan="${CSS.escape(plan.id)}"]`);
+    { class: 'plan-picker' },
+    h(
+      'div',
+      { class: 'plan-pills', role: 'group', 'aria-label': 'Treinos' },
+      listPlans(app.state).map((plan) =>
+        h(
+          'button',
+          {
+            type: 'button',
+            class: 'plan-pill',
+            'aria-pressed': String(plan.id === currentPlan().id),
+            dataset: { plan: plan.id },
+            onclick: () => {
+              selected = plan.id;
+              rerender(focusPlan(plan.id));
+            },
           },
-        },
-        `Treino ${plan.label}`,
+          swatch(plan.color),
+          `Treino ${plan.label}`,
+        ),
       ),
     ),
+    h(
+      'button',
+      { type: 'button', class: 'btn', dataset: { action: 'new-plan' }, onclick: () => onNewPlan(rerender) },
+      icon(ICONS.mais, { size: 18 }),
+      'Novo treino',
+    ),
+  );
+}
+
+function planActions(plan, rerender) {
+  const plans = listPlans(app.state);
+  const index = plans.findIndex((p) => p.id === plan.id);
+  const only = plans.length === 1;
+  const btn = (action, labelText, iconName, onclick, extra = {}) =>
+    h('button', { type: 'button', class: 'icon-btn', 'aria-label': labelText, dataset: { action }, onclick, ...extra }, icon(ICONS[iconName], { size: 20 }));
+  return h(
+    'div',
+    { class: 'plan-actions', role: 'group', 'aria-label': `Ações do treino ${plan.label}` },
+    btn('edit-plan', `Editar treino ${plan.label}`, 'editar', () => onEditPlan(rerender)),
+    h(
+      'button',
+      { type: 'button', class: 'btn', dataset: { action: 'duplicate-plan' }, onclick: () => onDuplicatePlan(rerender) },
+      'Duplicar',
+    ),
+    btn('plan-before', `Mover treino ${plan.label} para antes`, 'anterior', () => onMovePlan(-1, rerender), { disabled: index === 0 }),
+    btn('plan-after', `Mover treino ${plan.label} para depois`, 'proximo', () => onMovePlan(1, rerender), { disabled: index === plans.length - 1 }),
+    btn('remove-plan', `Remover treino ${plan.label}`, 'lixo', () => onRemovePlan(rerender), {
+      class: 'icon-btn danger',
+      disabled: only,
+      title: only ? 'É preciso manter pelo menos um treino' : null,
+    }),
   );
 }
 
@@ -244,7 +401,17 @@ function planContent(rerender) {
   const count = exercises.length === 1 ? '1 exercício' : `${exercises.length} exercícios`;
 
   return [
-    h('div', { class: 'plan-header' }, h('h3', {}, `Treino ${plan.label}`, name && ` — ${name}`), h('p', { class: 'muted' }, count)),
+    h(
+      'div',
+      { class: 'plan-header' },
+      h(
+        'div',
+        { class: 'plan-title' },
+        swatch(plan.color),
+        h('div', {}, h('h3', {}, `Treino ${plan.label}`, name && ` — ${name}`), h('p', { class: 'muted' }, count)),
+      ),
+      planActions(plan, rerender),
+    ),
     exercises.length
       ? h(
           'ol',
@@ -284,7 +451,7 @@ export function renderTreino() {
   const root = h(
     'section',
     { class: 'screen' },
-    h('h2', { class: 'screen-title' }, 'Treino AB'),
+    h('h2', { class: 'screen-title' }, 'Treinos'),
     h(
       'p',
       { class: 'muted' },

@@ -21,7 +21,7 @@ test('botão voltar do navegador troca de tela', async ({ page }) => {
   await page.goto('./#treino');
   await page.goto('./#diario');
   await page.goBack();
-  await expect(page.locator('#app h2')).toHaveText('Treino AB');
+  await expect(page.locator('#app h2')).toHaveText('Treinos');
 });
 
 test('rota inexistente cai na visão geral', async ({ page }) => {

@@ -153,7 +153,7 @@ function loadCard(rerender) {
     view.exercise = (options.find((o) => loadHistory(app.state, o.id).length) ?? options[0])?.id ?? null;
   }
   if (!view.exercise) {
-    return card('chart-load', 'Carga por exercício', emptyState({ title: 'Nenhum exercício', text: 'Cadastre exercícios no Treino AB.' }));
+    return card('chart-load', 'Carga por exercício', emptyState({ title: 'Nenhum exercício', text: 'Cadastre exercícios na aba Treinos.' }));
   }
   const current = options.find((o) => o.id === view.exercise);
   const data = loadSeries(app.state, view.exercise);

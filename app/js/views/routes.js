@@ -17,7 +17,7 @@ export const routes = {
     render: renderPainel,
   },
   treino: {
-    title: 'Treino AB',
+    title: 'Treinos',
     label: 'Treino',
     render: renderTreino,
   },

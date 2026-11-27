@@ -144,7 +144,7 @@ test('listPlans, getPlan, planIds e planDisplay', () => {
 test('nextLabel e nextColor sugerem o próximo livre', () => {
   const s = createInitialState();
   assert.equal(nextLabel(s), 'C');
-  assert.equal(nextColor(s), 'verde');
+  assert.equal(nextColor(s), 'turquesa');
   const full = { ...s, plans: Array.from({ length: 26 }, (_, i) => ({ ...s.plans[0], id: `p${i}`, label: String.fromCharCode(65 + i) })) };
   assert.equal(nextLabel(full), 'T1');
 });
@@ -179,7 +179,7 @@ test('createPlan: modelo vazio no fim, com registro no diário', () => {
 
 test('duplicatePlan: copia exercícios com ids novos, logo depois do original', () => {
   const s0 = deepFreeze(createInitialState());
-  const { state, plan } = duplicatePlan(s0, 'A', { name: 'Superiores 2', label: 'A2', color: 'roxo' }, ctx());
+  const { state, plan } = duplicatePlan(s0, 'A', { name: 'Superiores 2', label: 'A2', color: 'amarelo' }, ctx());
   assert.deepEqual(planIds(state), ['A', plan.id, 'B']);
   assert.equal(plan.exercises.length, 5);
   assert.deepEqual(plan.exercises.map((e) => e.name), s0.plans[0].exercises.map((e) => e.name));

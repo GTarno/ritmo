@@ -54,7 +54,7 @@ async function scan(page, label) {
 
 const SCREENS = [
   ['painel', 'Visão geral'],
-  ['treino', 'Treino AB'],
+  ['treino', 'Treinos'],
   ['calendario', 'Calendário'],
   ['sessao/2026-11-24', 'Hoje · terça-feira, 24 de novembro'],
   ['sessao/2026-11-23', 'segunda-feira, 23 de novembro'],

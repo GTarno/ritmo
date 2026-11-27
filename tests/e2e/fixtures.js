@@ -16,7 +16,7 @@ export { expect };
 /** [rota, título da tela, rótulo no menu] na ordem do menu. */
 export const ROUTES = [
   ['painel', 'Visão geral', 'Início'],
-  ['treino', 'Treino AB', 'Treino'],
+  ['treino', 'Treinos', 'Treino'],
   ['calendario', 'Calendário', 'Agenda'],
   ['evolucao', 'Evolução', 'Evolução'],
   ['diario', 'Diário', 'Diário'],
